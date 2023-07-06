@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "Avispa ECM Client",
+  "name": "Avispa ECM Client application with customizations",
   "icons": [
     {
       "src": "favicon.ico",

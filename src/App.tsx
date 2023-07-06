@@ -16,31 +16,49 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
+import React, {useEffect} from 'react';
+import { Helmet } from "react-helmet";
 import logo from './logo.svg';
 import './App.css';
 import Header from "./Header";
+import Footer from "./Footer";
 
 function App() {
-  return (
-    <div className="App">
-      <Header/>
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    useEffect(() => {
+        // TODO: dynamic from REST
+    }, []);
+
+    return (
+        <div className="App">
+            <Helmet>
+                <meta charSet="utf-8" />
+                <title>Avispa μF</title>
+                <meta name="description" content="Avispa μF - an application for generating simple invoices" />
+            </Helmet>
+
+            <header>
+                <Header/>
+            </header>
+
+            <header className="App-header">
+                <img src={logo} className="App-logo" alt="logo"/>
+                <p>
+                    Edit <code>src/App.tsx</code> and save to reload.
+                </p>
+                <a
+                    className="App-link"
+                    href="https://reactjs.org"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    Learn React
+                </a>
+            </header>
+            <footer className="mt-5">
+                <Footer/>
+            </footer>
+        </div>
+    );
 }
 
 export default App;
