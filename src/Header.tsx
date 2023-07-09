@@ -20,65 +20,23 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import {useEffect, useState} from "react";
+import {MenuItem} from "./interface/AppProps";
 
-function Header() {
-    const [headerData, setHeaderData] = useState({
-        brand: "Avispa ECM Client",
-        menuItems: [{
-            name: "",
-            actions: [{name: "", type: ""}]
-        }]
-    });
+interface HeaderProps {
+    brand: string;
+    menuItems: MenuItem[];
+}
 
-    useEffect(() => {
-        return setHeaderData({
-            brand: "μF",
-            menuItems: [
-                {
-                    name: "Invoice",
-                    actions: [
-                        {
-                            name: "Add new",
-                            type: "invoice-add-button"
-                        },
-                        {
-                            name: "Clone",
-                            type: 'invoice-clone-button'
-                        }
-                    ]
-                },
-                {
-                    name: "Customer",
-                    actions: [
-                        {
-                            name: "Add new",
-                            type: "customer-add-button"
-                        }
-                    ]
-                },
-                {
-                    name: "Bank account",
-                    actions: [
-                        {
-                            name: "Add new",
-                            type: "bank-account-add-button"
-                        }
-                    ]
-                }
-            ]
-        });
-    }, []);
-
+function Header({brand, menuItems}:HeaderProps) {
     return (
         <Navbar expand="md" fixed="top" bg="dark" data-bs-theme="dark" aria-label="Navigation bar">
             <Container fluid>
-                <Navbar.Brand href="#home">{headerData.brand}</Navbar.Brand>
+                <Navbar.Brand href="#home">{brand}</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" aria-expanded="false" aria-label="Toggle navigation"/>
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
                         {
-                            headerData.menuItems.map(item => (
+                            menuItems.map(item => (
                                 <NavDropdown title={item.name} id="basic-nav-dropdown">
                                     {
                                         item.actions.map(action => (

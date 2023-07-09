@@ -18,38 +18,16 @@
 
 import Container from 'react-bootstrap/Container';
 import Navbar from 'react-bootstrap/Navbar';
-import {useEffect, useState} from "react";
+import {Version} from "./interface/AppProps";
 
-function Footer() {
-    const [versions, setVersions] = useState({
-        version: [{
-            componentName: "",
-            number: ""
-        }]
-    });
+interface Versions {
+    versions: Version[];
+}
 
-    useEffect(() => {
-        return setVersions({
-            version: [
-                {
-                    componentName: "Avispa μF",
-                    number: "2.0.0"
-                },
-                {
-                    componentName: "Avispa ECM Client",
-                    number: "2.0.0"
-                },
-                {
-                    componentName: "Avispa ECM",
-                    number: "2.0.0"
-                }
-            ]
-        });
-    }, []);
-
+function Footer({versions}:Versions) {
     function getFooterLine() {
         let value = '';
-        versions.version.map(version => (
+        versions.map(version => (
             value += version.componentName + ' v' + version.number + ', '
         ))
         return value + '©' + new Date().getFullYear() + ' ';
