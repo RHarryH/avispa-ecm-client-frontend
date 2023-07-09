@@ -16,28 +16,97 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, {useEffect} from 'react';
+import React, {useEffect, useState} from 'react';
 import { Helmet } from "react-helmet";
 import logo from './logo.svg';
 import './App.css';
 import Header from "./Header";
 import Footer from "./Footer";
+import {AppProps} from "./interface/AppProps";
 
 function App() {
+    const [appData, setAppProps] = useState<AppProps>({
+        fullName: "Avispa ECM Client",
+        shortName: "ECM",
+        description: "Avispa ECM Client default application",
+        header: {
+            menuItems: []
+        },
+        versions: [
+            {
+                componentName: "Avispa ECM Client",
+                number: "Unknown version"
+            }
+        ]
+    });
+
     useEffect(() => {
-        // TODO: dynamic from REST
+        return setAppProps({
+            fullName: "Avispa μF",
+            shortName: "μF",
+            description: "Avispa μF - an application for generating simple invoices",
+            header: {
+                menuItems: [
+                    {
+                        name: "Invoice",
+                        actions: [
+                            {
+                                name: "Add new",
+                                type: "invoice-add-button"
+                            },
+                            {
+                                name: "Clone",
+                                type: 'invoice-clone-button'
+                            }
+                        ]
+                    },
+                    {
+                        name: "Customer",
+                        actions: [
+                            {
+                                name: "Add new",
+                                type: "customer-add-button"
+                            }
+                        ]
+                    },
+                    {
+                        name: "Bank account",
+                        actions: [
+                            {
+                                name: "Add new",
+                                type: "bank-account-add-button"
+                            }
+                        ]
+                    }
+                ]
+            },
+            versions: [
+                {
+                    componentName: "Avispa μF",
+                    number: "2.0.0"
+                },
+                {
+                    componentName: "Avispa ECM Client",
+                    number: "2.0.0"
+                },
+                {
+                    componentName: "Avispa ECM",
+                    number: "2.0.0"
+                }
+            ]
+        })
     }, []);
 
     return (
         <div className="App">
             <Helmet>
                 <meta charSet="utf-8" />
-                <title>Avispa μF</title>
+                <title>{appData.fullName}</title>
                 <meta name="description" content="Avispa μF - an application for generating simple invoices" />
             </Helmet>
 
             <header>
-                <Header/>
+                <Header brand={appData.shortName} menuItems={appData.header.menuItems}/>
             </header>
 
             <header className="App-header">
@@ -55,7 +124,7 @@ function App() {
                 </a>
             </header>
             <footer className="mt-5">
-                <Footer/>
+                <Footer versions={appData.versions}/>
             </footer>
         </div>
     );
