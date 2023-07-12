@@ -16,6 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-.App {
-  padding-top: 5rem;
+import {useEffect, useState} from "react";
+
+interface Test {
+    test: string;
 }
+
+function RepositoryWidget() {
+    const [repositoryWidgetData, setRepositoryWidgetData] = useState<Test>({
+        test: "test"
+    });
+
+    useEffect(() => {
+        return setRepositoryWidgetData({
+            test: "test"
+        })
+    }, []);
+
+    return <>Test</>;
+}
+
+export default RepositoryWidget;
