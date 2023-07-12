@@ -17,20 +17,25 @@
  */
 
 import React, {useEffect, useState} from 'react';
-import { Helmet } from "react-helmet";
-import logo from './logo.svg';
+import {Helmet} from "react-helmet";
 import './App.css';
 import Header from "./Header";
 import Footer from "./Footer";
-import {AppProps} from "./interface/AppProps";
+import Section from "./Section";
+import {AppProps, SectionProps, SectionTypeEnum, WidgetTypeEnum} from "./interface/AppProps";
+import Container from "react-bootstrap/Container";
+import {Row} from "react-bootstrap";
 
 function App() {
-    const [appData, setAppProps] = useState<AppProps>({
+    const [appData, setAppData] = useState<AppProps>({
         fullName: "Avispa ECM Client",
         shortName: "ECM",
         description: "Avispa ECM Client default application",
         header: {
             menuItems: []
+        },
+        layout: {
+            sections: []
         },
         versions: [
             {
@@ -41,7 +46,7 @@ function App() {
     });
 
     useEffect(() => {
-        return setAppProps({
+        return setAppData({
             fullName: "Avispa μF",
             shortName: "μF",
             description: "Avispa μF - an application for generating simple invoices",
@@ -80,6 +85,42 @@ function App() {
                     }
                 ]
             },
+            layout: {
+                sections: [
+                    {
+                        type: SectionTypeEnum.SIDEBAR,
+                        widgets: [
+                            {
+                                name: "Repository",
+                                activeByDefault: true,
+                                type: WidgetTypeEnum.REPOSITORY
+                            }
+                        ]
+                    },
+                    {
+                        type: SectionTypeEnum.CENTER,
+                        widgets: [
+                            {
+                                name: "Properties",
+                                type: WidgetTypeEnum.PROPERTIES
+                            },
+                            {
+                                name: "Invoices",
+                                activeByDefault: true,
+                                type: WidgetTypeEnum.LIST
+                            },
+                            {
+                                name: "Customers",
+                                type: WidgetTypeEnum.LIST
+                            },
+                            {
+                                name: "Bank Accounts",
+                                type: WidgetTypeEnum.LIST
+                            }
+                        ]
+                    }
+                ]
+            },
             versions: [
                 {
                     componentName: "Avispa μF",
@@ -109,20 +150,19 @@ function App() {
                 <Header brand={appData.shortName} menuItems={appData.header.menuItems}/>
             </header>
 
-            <header className="App-header">
-                <img src={logo} className="App-logo" alt="logo"/>
-                <p>
-                    Edit <code>src/App.tsx</code> and save to reload.
-                </p>
-                <a
-                    className="App-link"
-                    href="https://reactjs.org"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                >
-                    Learn React
-                </a>
-            </header>
+            <main>
+                <Container fluid>
+                    <Row>
+                        {
+                            appData.layout.sections.map(section => {
+                                const activeWidget = section.widgets.find(widget => widget.activeByDefault)?.name.toLowerCase();
+                                return (<Section type={section.type} activeWidget={activeWidget} widgets={section.widgets}></Section>);
+                            })
+                        }
+                    </Row>
+                </Container>
+            </main>
+
             <footer className="mt-5">
                 <Footer versions={appData.versions}/>
             </footer>

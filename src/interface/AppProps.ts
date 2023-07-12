@@ -21,6 +21,7 @@ export interface AppProps {
     shortName: string;
     description: string;
     header: Header;
+    layout: Layout;
     versions: Version[];
 }
 
@@ -36,6 +37,33 @@ export interface MenuItem {
 interface Action {
     name: string;
     type: string;
+}
+
+interface Layout {
+    sections: SectionProps[];
+}
+
+export enum SectionTypeEnum {
+    SIDEBAR,
+    CENTER
+}
+
+export interface SectionProps {
+    type: SectionTypeEnum;
+    activeWidget?: string;
+    widgets: WidgetProps[];
+}
+
+export enum WidgetTypeEnum {
+    REPOSITORY,
+    PROPERTIES,
+    LIST
+}
+
+export interface WidgetProps {
+    name: string;
+    activeByDefault?: boolean;
+    type: WidgetTypeEnum;
 }
 
 export interface Version {

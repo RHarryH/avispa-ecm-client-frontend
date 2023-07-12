@@ -16,6 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-.App {
-  padding-top: 5rem;
+import {useEffect, useState} from "react";
+
+interface Test {
+    test: string;
 }
+
+function PropertiesWidget() {
+    const [propertiesWidgetData, setPropertiesWidgetData] = useState<Test>({
+        test: "test"
+    });
+
+    useEffect(() => {
+        return setPropertiesWidgetData({
+            test: "test"
+        })
+    }, []);
+
+    return <>Test</>;
+}
+
+export default PropertiesWidget;

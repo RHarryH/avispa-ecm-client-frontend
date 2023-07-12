@@ -16,6 +16,24 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-.App {
-  padding-top: 5rem;
+import {useEffect, useState} from "react";
+
+interface Test {
+    test: string;
 }
+
+function ListWidget() {
+    const [listWidgetData, setListWidgetData] = useState<Test>({
+        test: "test"
+    });
+
+    useEffect(() => {
+        return setListWidgetData({
+            test: "test"
+        })
+    }, []);
+
+    return <>Test</>;
+}
+
+export default ListWidget;
