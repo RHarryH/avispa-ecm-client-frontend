@@ -22,7 +22,7 @@ import './App.css';
 import Header from "./Header";
 import Footer from "./Footer";
 import Section from "./Section";
-import {AppProps, SectionProps, SectionTypeEnum, WidgetTypeEnum} from "./interface/AppProps";
+import {AppProps, SectionTypeEnum, WidgetTypeEnum} from "./interface/AppProps";
 import Container from "react-bootstrap/Container";
 import {Row} from "react-bootstrap";
 
