@@ -22,8 +22,10 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 
-// Importing the Bootstrap CSS
+// importing the Bootstrap CSS
 import 'bootstrap/dist/css/bootstrap.min.css';
+// importing the Bootstrap Icons CSS
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
