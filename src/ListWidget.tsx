@@ -16,24 +16,157 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
+import {Button, Table} from "react-bootstrap";
 
-interface Test {
-    test: string;
+interface Value {
+    key: string;
+    value: string;
+}
+interface ListData {
+    id: string;
+    values: Value[];
+}
+interface ListDataProps {
+    caption: string;
+    typeName: string;
+    isDocumentType: boolean;
+    emptyMessage: string;
+    headers: string[];
+    data: ListData[];
 }
 
 function ListWidget() {
-    const [listWidgetData, setListWidgetData] = useState<Test>({
-        test: "test"
+    const [listWidgetData, setListWidgetData] = useState<ListDataProps>({
+        caption: "Invoices",
+        typeName: "Invoice",
+        isDocumentType: true,
+        emptyMessage: "Empty",
+        headers: [],
+        data: []
     });
 
-    useEffect(() => {
+    function fetchData() {
         return setListWidgetData({
-            test: "test"
+            caption: "Invoices",
+            typeName: "Invoice",
+            isDocumentType: true,
+            emptyMessage: "No Invoices Available",
+            headers: [
+                "Serial Number",
+                "Invoice Name",
+                "Issue Name",
+                "Service Data",
+                "Comments"
+            ],
+            data: [{
+                id: "123",
+                values: [
+                    {
+                        key: "Serial Number",
+                        value: "1"
+                    },
+                    {
+                        key: "Invoice Name",
+                        value: "2"
+                    },
+                    {
+                        key: "Issue Name",
+                        value: "3"
+                    },
+                    {
+                        key: "Service Data",
+                        value: "4"
+                    },
+                    {
+                        key: "Comments",
+                        value: "5"
+                    }
+                ]
+            }]
         })
+    }
+
+    useEffect(() => {
+        return fetchData();
     }, []);
 
-    return <>Test</>;
+    const reloadData = useCallback(() => {
+        return fetchData();
+    }, []);
+
+    const editRow = useCallback((rowId:string) => {
+        return null;
+    }, []);
+
+    const deleteRow = useCallback((rowId:string) => {
+        return null;
+    }, []);
+
+    const getRendition = useCallback((rowId:string) => {
+        return null;
+    }, []);
+
+    return (
+    <div className="py-3">
+        <Button size="sm" variant="outline-dark" className="mb-2 bi bi-arrow-clockwise" onClick={reloadData}> Refresh</Button>
+        <Table striped>
+            <caption>{listWidgetData.caption}</caption>
+            <thead>
+                <tr>
+                    {
+                        listWidgetData.headers
+                            .filter(header => header != "pdfRenditionAvailable")
+                            .map(header => (<th scope="col">{header}</th>))
+                    }
+                    <th scope="col">Edit</th>
+                    <th scope="col">Delete</th>
+                    {
+                        listWidgetData.isDocumentType ?
+                            <th scope="col">Download</th> :
+                            null
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                {
+                    !listWidgetData.data.length ?
+                        <tr><td colSpan={100}>{listWidgetData.emptyMessage}</td></tr> :
+                        null
+                }
+                {
+                    listWidgetData.data
+                        .map(data =>
+                            (<tr>
+                                {
+                                    data.values.map(value => (
+                                        value.key != "pdfRenditionAvailable" ?
+                                            <td key={value.key}>{value.value}</td> :
+                                            null
+                                    ))
+                                }
+                                <td>
+                                    <Button variant="" value={data.id} className="bi bi-pencil-fill" title={"Edit " + listWidgetData.typeName} onClick={e => editRow(data.id)}></Button>
+                                </td>
+                                <td>
+                                    <Button variant="" value={data.id} className="bi bi-trash-fill" title={"Delete " + listWidgetData.typeName} onClick={e => deleteRow(data.id)}></Button>
+                                </td>
+                                {
+                                    listWidgetData.isDocumentType ?
+                                        (<td>
+                                            {
+                                                data.values.filter(value => value.key == "pdfRenditionAvailable").length ?
+                                                <Button variant="" value={data.id} className="bi bi-file-earmark-arrow-down-fill" title="Download PDF rendition" onClick={e => getRendition(data.id)}></Button> :
+                                                <></>
+                                            }
+                                        </td>):
+                                        null
+                                }
+                            </tr>))
+                }
+            </tbody>
+        </Table>
+    </div>);
 }
 
 export default ListWidget;
