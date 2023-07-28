@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {SectionProps, SectionTypeEnum, WidgetProps, WidgetTypeEnum} from "./interface/AppProps";
+import {SectionLocation, SectionProps, WidgetProps, WidgetType} from "./interface/AppProps";
 import RepositoryWidget from "./RepositoryWidget";
 import PropertiesWidget from "./PropertiesWidget";
 import ListWidget from "./ListWidget";
@@ -25,17 +25,17 @@ import React from "react";
 
 function Widget(widget: WidgetProps) {
     switch(widget.type) {
-        case WidgetTypeEnum.REPOSITORY:
+        case WidgetType.REPOSITORY:
             return (<RepositoryWidget></RepositoryWidget>);
-        case WidgetTypeEnum.PROPERTIES:
+        case WidgetType.PROPERTIES:
             return (<PropertiesWidget></PropertiesWidget>);
-        case WidgetTypeEnum.LIST:
-            return (<ListWidget></ListWidget>);
+        case WidgetType.LIST:
+            return (<ListWidget configuration={widget.configuration}></ListWidget>);
     }
 
     return (<></>);
 }
-function Section({type, activeWidget, widgets}:SectionProps){
+function Section({location, activeWidget, widgets}:SectionProps){
     function getAriaLabel(id: string) {
         const firstLetter = id.charAt(0);
         const firstLetterCap = firstLetter.toUpperCase();
@@ -45,13 +45,11 @@ function Section({type, activeWidget, widgets}:SectionProps){
 
     if(widgets.length) {
         let sectionWidth: number | undefined = undefined;
-        switch(type) {
-            case SectionTypeEnum.SIDEBAR:
-                sectionWidth = 2;
-                break;
+        if(location === SectionLocation.SIDEBAR) {
+            sectionWidth = 2;
         }
 
-        const id = SectionTypeEnum[type].toLowerCase();
+        const id = SectionLocation[location].toLowerCase();
         const ariaLabel = getAriaLabel(id);
 
         return (
@@ -63,8 +61,8 @@ function Section({type, activeWidget, widgets}:SectionProps){
                 >
                     {
                         widgets.map(widget => (
-                            <Tab eventKey={widget.name.toLowerCase()} title={widget.name}>
-                                <Widget name={widget.name} type={widget.type}></Widget>
+                            <Tab eventKey={widget.label.toLowerCase()} title={widget.label}>
+                                <Widget label={widget.label} type={widget.type}></Widget>
                             </Tab>
                         ))
                     }

@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from "react";
+import React, {ElementRef, useEffect, useRef, useState} from "react";
 import $ from 'jquery';
 import 'jstree/dist/jstree.min';
 import 'jstree/dist/themes/default/style.css';
@@ -9,10 +9,10 @@ interface TreeViewProps {
 
 function TreeView({treeData}:TreeViewProps) {
     const [selected, setSelected] = useState<string>();
-    const ref = useRef<HTMLDivElement>(null);
+    const ref = useRef<ElementRef<"div">>(null);
 
     useEffect(() => {
-        const treeReference:HTMLDivElement | null = ref.current;
+        const treeReference = ref.current;
 
         if(treeReference) {
             $(treeReference).on("changed.jstree", function (e, data) {

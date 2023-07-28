@@ -26,6 +26,9 @@ import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 // importing the Bootstrap Icons CSS
 import "bootstrap-icons/font/bootstrap-icons.css";
+import axios from "axios";
+
+axios.defaults.baseURL = 'http://localhost:8081/v1';
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement
