@@ -36,7 +36,11 @@ interface ListDataProps {
     data: ListData[];
 }
 
-function ListWidget() {
+interface ListWidgetProps {
+    configuration?: string;
+}
+
+function ListWidget({configuration}:ListWidgetProps) {
     const [listWidgetData, setListWidgetData] = useState<ListDataProps>({
         caption: "Invoices",
         typeName: "Invoice",
@@ -116,7 +120,7 @@ function ListWidget() {
                 <tr>
                     {
                         listWidgetData.headers
-                            .filter(header => header != "pdfRenditionAvailable")
+                            .filter(header => header !== "pdfRenditionAvailable")
                             .map(header => (<th scope="col">{header}</th>))
                     }
                     <th scope="col">Edit</th>
@@ -140,7 +144,7 @@ function ListWidget() {
                             (<tr>
                                 {
                                     data.values.map(value => (
-                                        value.key != "pdfRenditionAvailable" ?
+                                        value.key !== "pdfRenditionAvailable" ?
                                             <td key={value.key}>{value.value}</td> :
                                             null
                                     ))
@@ -155,7 +159,7 @@ function ListWidget() {
                                     listWidgetData.isDocumentType ?
                                         (<td>
                                             {
-                                                data.values.filter(value => value.key == "pdfRenditionAvailable").length ?
+                                                data.values.filter(value => value.key === "pdfRenditionAvailable").length ?
                                                 <Button variant="" value={data.id} className="bi bi-file-earmark-arrow-down-fill" title="Download PDF rendition" onClick={e => getRendition(data.id)}></Button> :
                                                 <></>
                                             }

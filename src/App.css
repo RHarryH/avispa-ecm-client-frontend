@@ -19,3 +19,9 @@
 .App {
   padding-top: 5rem;
 }
+
+.dropdown-menu {
+  border-left: 1px solid var(--fbc-secondary-text) !important;
+  margin-left: 0 !important;
+  border-top-left-radius: 0  !important;
+}

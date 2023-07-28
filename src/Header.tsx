@@ -20,34 +20,52 @@ import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
-import {MenuItem} from "./interface/AppProps";
+import {Menu, MenuItem} from "./interface/AppProps";
+import {DropDirection} from "react-bootstrap/DropdownContext";
 
 interface HeaderProps {
     brand: string;
-    menuItems: MenuItem[];
+    menu: Menu;
 }
 
-function Header({brand, menuItems}:HeaderProps) {
+function Header({brand, menu}:HeaderProps) {
+
+    function createMenu(items:MenuItem[]) {
+        return items.map(item => createItems(item));
+    }
+    function createItems(item:MenuItem) {
+        if(item.items && item.items.length) {
+            return createSubMenu(item.label, item.items);
+        } else {
+            return (<Nav.Link href={item.action}>{item.label}</Nav.Link>);
+        }
+    }
+
+    function createSubMenu(label:string, items:MenuItem[], drop:DropDirection = "down") {
+        return (
+            <NavDropdown title={label} id={label} drop={drop}>
+                {
+                    items.map(item => createSubItem(item))
+                }
+            </NavDropdown>
+        );
+    }
+
+    function createSubItem(subItem:MenuItem) {
+        if(subItem.items && subItem.items.length) {
+            return createSubMenu(subItem.label, subItem.items, "end");
+        } else {
+            return (<NavDropdown.Item href={subItem.action}>{subItem.label}</NavDropdown.Item>);
+        }
+    }
+
     return (
         <Navbar expand="md" fixed="top" bg="dark" data-bs-theme="dark" aria-label="Navigation bar">
             <Container fluid>
                 <Navbar.Brand href="#home">{brand}</Navbar.Brand>
                 <Navbar.Toggle aria-controls="basic-navbar-nav" aria-expanded="false" aria-label="Toggle navigation"/>
                 <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="me-auto">
-                        {
-                            menuItems.map(item => (
-                                <NavDropdown title={item.name} id="basic-nav-dropdown">
-                                    {
-                                        item.actions.map(action => (
-                                            <NavDropdown.Item className={action.type}
-                                                              href="#">{action.name}</NavDropdown.Item>
-                                        ))
-                                    }
-                                </NavDropdown>
-                            ))
-                        }
-                    </Nav>
+                    <Nav className="me-auto">{createMenu(menu.items)}</Nav>
                 </Navbar.Collapse>
             </Container>
         </Navbar>

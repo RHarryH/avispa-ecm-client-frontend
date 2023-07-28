@@ -22,9 +22,10 @@ import './App.css';
 import Header from "./Header";
 import Footer from "./Footer";
 import Section from "./Section";
-import {AppProps, SectionTypeEnum, WidgetTypeEnum} from "./interface/AppProps";
+import {AppProps, SectionLocation, WidgetType} from "./interface/AppProps";
 import Container from "react-bootstrap/Container";
 import {Row} from "react-bootstrap";
+import axios from "axios";
 
 function App() {
     const [appData, setAppData] = useState<AppProps>({
@@ -32,7 +33,9 @@ function App() {
         shortName: "ECM",
         description: "Avispa ECM Client default application",
         header: {
-            menuItems: []
+            menu: {
+                items: []
+            }
         },
         layout: {
             sections: []
@@ -46,96 +49,11 @@ function App() {
     });
 
     useEffect(() => {
-        return setAppData({
-            fullName: "Avispa μF",
-            shortName: "μF",
-            description: "Avispa μF - an application for generating simple invoices",
-            header: {
-                menuItems: [
-                    {
-                        name: "Invoice",
-                        actions: [
-                            {
-                                name: "Add new",
-                                type: "invoice-add-button"
-                            },
-                            {
-                                name: "Clone",
-                                type: 'invoice-clone-button'
-                            }
-                        ]
-                    },
-                    {
-                        name: "Customer",
-                        actions: [
-                            {
-                                name: "Add new",
-                                type: "customer-add-button"
-                            }
-                        ]
-                    },
-                    {
-                        name: "Bank account",
-                        actions: [
-                            {
-                                name: "Add new",
-                                type: "bank-account-add-button"
-                            }
-                        ]
-                    }
-                ]
-            },
-            layout: {
-                sections: [
-                    {
-                        type: SectionTypeEnum.SIDEBAR,
-                        widgets: [
-                            {
-                                name: "Repository",
-                                activeByDefault: true,
-                                type: WidgetTypeEnum.REPOSITORY
-                            }
-                        ]
-                    },
-                    {
-                        type: SectionTypeEnum.CENTER,
-                        widgets: [
-                            {
-                                name: "Properties",
-                                type: WidgetTypeEnum.PROPERTIES
-                            },
-                            {
-                                name: "Invoices",
-                                activeByDefault: true,
-                                type: WidgetTypeEnum.LIST
-                            },
-                            {
-                                name: "Customers",
-                                type: WidgetTypeEnum.LIST
-                            },
-                            {
-                                name: "Bank Accounts",
-                                type: WidgetTypeEnum.LIST
-                            }
-                        ]
-                    }
-                ]
-            },
-            versions: [
-                {
-                    componentName: "Avispa μF",
-                    number: "2.0.0"
-                },
-                {
-                    componentName: "Avispa ECM Client",
-                    number: "2.0.0"
-                },
-                {
-                    componentName: "Avispa ECM",
-                    number: "2.0.0"
-                }
-            ]
-        })
+        axios.get<AppProps>(`/client`)
+            .then(res => {
+                const clientData = res.data;
+                setAppData(clientData);
+            })
     }, []);
 
     return (
@@ -147,7 +65,7 @@ function App() {
             </Helmet>
 
             <header>
-                <Header brand={appData.shortName} menuItems={appData.header.menuItems}/>
+                <Header brand={appData.shortName} menu={appData.header.menu}/>
             </header>
 
             <main>
@@ -155,8 +73,8 @@ function App() {
                     <Row>
                         {
                             appData.layout.sections.map(section => {
-                                const activeWidget = section.widgets.find(widget => widget.activeByDefault)?.name.toLowerCase();
-                                return (<Section type={section.type} activeWidget={activeWidget} widgets={section.widgets}></Section>);
+                                const activeWidget = section.widgets.find(widget => widget.activeByDefault)?.label.toLowerCase();
+                                return (<Section location={section.location} activeWidget={activeWidget} widgets={section.widgets}></Section>);
                             })
                         }
                     </Row>

@@ -26,44 +26,45 @@ export interface AppProps {
 }
 
 interface Header {
-    menuItems: MenuItem[];
+    menu: Menu;
+}
+
+export interface Menu {
+    items: MenuItem[];
 }
 
 export interface MenuItem {
-    name: string;
-    actions: Action[];
-}
-
-interface Action {
-    name: string;
-    type: string;
+    label: string;
+    items?: MenuItem[];
+    action?: string;
 }
 
 interface Layout {
     sections: SectionProps[];
 }
 
-export enum SectionTypeEnum {
-    SIDEBAR,
-    CENTER
+export enum SectionLocation {
+    SIDEBAR = 'SIDEBAR',
+    CENTER = 'CENTER'
 }
 
 export interface SectionProps {
-    type: SectionTypeEnum;
+    location: SectionLocation;
     activeWidget?: string;
     widgets: WidgetProps[];
 }
 
-export enum WidgetTypeEnum {
-    REPOSITORY,
-    PROPERTIES,
-    LIST
+export enum WidgetType {
+    REPOSITORY= 'REPOSITORY',
+    PROPERTIES = 'PROPERTIES',
+    LIST = 'LIST'
 }
 
 export interface WidgetProps {
-    name: string;
+    label: string;
     activeByDefault?: boolean;
-    type: WidgetTypeEnum;
+    type: WidgetType;
+    configuration?: string;
 }
 
 export interface Version {
