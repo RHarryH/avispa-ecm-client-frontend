@@ -16,27 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {useEffect, useState} from "react";
-import {useEventContext} from "./event/EventContext";
+import {AxiosResponse} from "axios";
 
-interface Test {
-    test: string;
+export function getFilenameFromHeader(response: AxiosResponse) {
+    const disposition = response.headers['content-disposition'];
+
+    if (disposition && disposition.indexOf('attachment') !== -1) {
+        const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+        const matches = filenameRegex.exec(disposition);
+        if (matches != null && matches[1]) {
+            return matches[1].replace(/['"]/g, '');
+        }
+    }
+
+    return "download";
 }
-
-function PropertiesWidget() {
-    const [propertiesWidgetData, setPropertiesWidgetData] = useState<Test>({
-        test: "test"
-    });
-
-    const { state } = useEventContext();
-
-    useEffect(() => {
-        return setPropertiesWidgetData({
-            test: "test"
-        })
-    }, []);
-
-    return <>Selected: {state.id}</>;
-}
-
-export default PropertiesWidget;

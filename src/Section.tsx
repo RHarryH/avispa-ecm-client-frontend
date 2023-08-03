@@ -21,7 +21,8 @@ import RepositoryWidget from "./RepositoryWidget";
 import PropertiesWidget from "./PropertiesWidget";
 import ListWidget from "./ListWidget";
 import {Col, Tab, Tabs} from "react-bootstrap";
-import React from "react";
+import React, {useState} from "react";
+import {useEventListener} from "./event/EventContext";
 
 function Widget(widget: WidgetProps) {
     switch(widget.type) {
@@ -35,7 +36,18 @@ function Widget(widget: WidgetProps) {
 
     return (<></>);
 }
-function Section({location, activeWidget, widgets}:SectionProps){
+function Section({location, widgets}:SectionProps){
+    const [key, setKey] = useState<string>(getDefaultWidget(widgets));
+
+    useEventListener(["REPOSITORY_ITEM_SELECTED", "REPOSITORY_ITEM_DESELECTED"], () => {
+        // focus on properties widget
+        const propertiesWidget = widgets.find(widget => widget.type === WidgetType.PROPERTIES);
+        const tabKey = propertiesWidget?.label.toLowerCase();
+        if (tabKey) {
+            setKey(tabKey);
+        }
+    });
+
     function getAriaLabel(id: string) {
         const firstLetter = id.charAt(0);
         const firstLetterCap = firstLetter.toUpperCase();
@@ -43,8 +55,19 @@ function Section({location, activeWidget, widgets}:SectionProps){
         return firstLetterCap + remainingLetters;
     }
 
+    function getDefaultWidget(widgets: WidgetProps[]) {
+        let widget = widgets.find(widget => widget.active);
+
+        // select first widget as active if not specified in another way
+        if(!widget && widgets.length) {
+            widget = widgets[0];
+        }
+
+        return widget ? widget.label.toLowerCase() : "";
+    }
+
     if(widgets.length) {
-        let sectionWidth: number | undefined = undefined;
+        let sectionWidth: number | undefined;
         if(location === SectionLocation.SIDEBAR) {
             sectionWidth = 2;
         }
@@ -55,7 +78,8 @@ function Section({location, activeWidget, widgets}:SectionProps){
         return (
             <Col lg={sectionWidth}>
                 <Tabs
-                    defaultActiveKey={activeWidget}
+                    activeKey={key}
+                    onSelect={(k) => setKey(k ? k : "")}
                     id={id}
                     aria-label={ariaLabel}
                 >
@@ -71,7 +95,7 @@ function Section({location, activeWidget, widgets}:SectionProps){
         );
     }
 
-    return (<></>);
+    return null;
 }
 
 export default Section;
