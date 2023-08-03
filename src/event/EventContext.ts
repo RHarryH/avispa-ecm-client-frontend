@@ -16,27 +16,29 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {useEffect, useState} from "react";
-import {useEventContext} from "./event/EventContext";
+import {createContext, Dispatch, useContext, useEffect} from "react";
+import {EventAction, EventState, EventType} from "./EventReducer";
+import {WidgetType} from "../interface/AppProps";
 
-interface Test {
-    test: string;
+interface ContextProps {
+    state: EventState
+    publishEvent: Dispatch<EventAction>
 }
 
-function PropertiesWidget() {
-    const [propertiesWidgetData, setPropertiesWidgetData] = useState<Test>({
-        test: "test"
-    });
+const EventContext = createContext({} as ContextProps);
 
-    const { state } = useEventContext();
+export function useEventContext() {
+    return useContext(EventContext)
+}
+
+export function useEventListener(events: EventType[], handle: () => void) {
+    const {state} = useEventContext();
 
     useEffect(() => {
-        return setPropertiesWidgetData({
-            test: "test"
-        })
-    }, []);
-
-    return <>Selected: {state.id}</>;
+        if (state?.type && events.includes(state.type)) {
+            handle();
+        }
+    }, [state]);
 }
 
-export default PropertiesWidget;
+export default EventContext;

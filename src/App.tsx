@@ -16,16 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useReducer, useState} from 'react';
 import {Helmet} from "react-helmet";
 import './App.css';
 import Header from "./Header";
 import Footer from "./Footer";
 import Section from "./Section";
-import {AppProps, SectionLocation, WidgetType} from "./interface/AppProps";
+import {AppProps} from "./interface/AppProps";
 import Container from "react-bootstrap/Container";
 import {Row} from "react-bootstrap";
 import axios from "axios";
+import EventContext from "./event/EventContext";
+import {eventReducer} from "./event/EventReducer";
 
 function App() {
     const [appData, setAppData] = useState<AppProps>({
@@ -54,7 +56,18 @@ function App() {
                 const clientData = res.data;
                 setAppData(clientData);
             })
+            .catch(function(error) {
+                console.log(error);
+            })
     }, []);
+
+    const [state, publishEvent ] = useReducer(eventReducer, {type: null, id: ""});
+
+    const eventProviderState = useMemo(() => (
+        {
+            state,
+            publishEvent
+        }), [state]);
 
     return (
         <div className="App">
@@ -71,12 +84,13 @@ function App() {
             <main>
                 <Container fluid>
                     <Row>
-                        {
-                            appData.layout.sections.map(section => {
-                                const activeWidget = section.widgets.find(widget => widget.activeByDefault)?.label.toLowerCase();
-                                return (<Section location={section.location} activeWidget={activeWidget} widgets={section.widgets}></Section>);
-                            })
-                        }
+                        <EventContext.Provider value={eventProviderState}>
+                            {
+                                appData.layout.sections.map(section => {
+                                    return (<Section location={section.location} widgets={section.widgets}></Section>);
+                                })
+                            }
+                        </EventContext.Provider>
                     </Row>
                 </Container>
             </main>

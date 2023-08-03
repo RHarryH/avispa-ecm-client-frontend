@@ -19,6 +19,8 @@
 import React, {useCallback, useEffect, useState} from "react";
 import TreeView from "./TreeView";
 import {Button, Col, Row} from "react-bootstrap";
+import axios from "axios";
+import {getFilenameFromHeader} from "./misc/Misc";
 
 interface DirectoryNode {
     id: string;
@@ -31,44 +33,42 @@ interface DirectoryNode {
 function RepositoryWidget() {
     const [repositoryWidgetData, setRepositoryWidgetData] = useState<DirectoryNode[]>([]);
 
-    function fetchData() {
-        return setRepositoryWidgetData([
-            {
-                "id": "9d262041-c7f8-4151-b8c8-6d88c3bbffa5",
-                "parent": "#",
-                "text": "Invoices",
-                "type": "root"
-            },
-            {
-                "id": "4603b617-e7ee-459e-9765-dedc29cfdd47",
-                "parent": "9d262041-c7f8-4151-b8c8-6d88c3bbffa5",
-                "text": "2023",
-                "type": "folder"
-            },
-            {
-                "id": "43718385-5db9-4a88-9bab-0ed18c4ade6a",
-                "parent": "4603b617-e7ee-459e-9765-dedc29cfdd47",
-                "text": "07",
-                "type": "folder"
-            },
-            {
-                "id": "e63420bd-f752-4fac-9a4b-47618e76cda8",
-                "parent": "43718385-5db9-4a88-9bab-0ed18c4ade6a",
-                "text": "F/2023/07/001",
-                "type": "odt"
-            }])
-    }
-
     useEffect(() => {
         return fetchData();
     }, []);
 
-    const exportData = useCallback(() => {
-        // REST
-    }, []);
-
     const reloadData = useCallback(() => {
         return fetchData();
+    }, []);
+
+    function fetchData() {
+        axios.get<DirectoryNode[]>(`/directory`)
+            .then(response => {
+                const folderHierarchy = response.data;
+                setRepositoryWidgetData(folderHierarchy);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
+    }
+
+    const exportData = useCallback(() => {
+        axios.get(`/directory/export`, {responseType: 'blob'})
+            .then(response => {
+                const type = response.headers['content-type'];
+                const filename = getFilenameFromHeader(response);
+                const blob = new Blob([response.data], { type: type });
+                const link = document.createElement('a');
+
+                link.href = window.URL.createObjectURL(blob)
+                link.download = filename;
+                link.click();
+
+                setTimeout(() => window.URL.revokeObjectURL(link.href), 0); // memory cleanup
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
     }, []);
 
     return (

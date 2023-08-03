@@ -1,15 +1,17 @@
-import React, {ElementRef, useEffect, useRef, useState} from "react";
+import React, {ElementRef, useEffect, useRef} from "react";
 import $ from 'jquery';
 import 'jstree/dist/jstree.min';
 import 'jstree/dist/themes/default/style.css';
+import {useEventContext} from "./event/EventContext";
 
 interface TreeViewProps {
     treeData: object
 }
 
 function TreeView({treeData}:TreeViewProps) {
-    const [selected, setSelected] = useState<string>();
     const ref = useRef<ElementRef<"div">>(null);
+
+    const { publishEvent } = useEventContext();
 
     useEffect(() => {
         const treeReference = ref.current;
@@ -17,9 +19,15 @@ function TreeView({treeData}:TreeViewProps) {
         if(treeReference) {
             $(treeReference).on("changed.jstree", function (e, data) {
                 if(data.action === "select_node") {
-                    setSelected(data.node.id)
+                    publishEvent({
+                        type: "REPOSITORY_ITEM_SELECTED",
+                        payload: data.node.id
+                    })
                 } else if(data.action === "deselect_node") { // do not pass id
-                    setSelected(undefined)
+                    publishEvent({
+                        type: "REPOSITORY_ITEM_DESELECTED",
+                        payload: ""
+                    })
                 }
             })
 
@@ -99,11 +107,7 @@ function TreeView({treeData}:TreeViewProps) {
         }
     }, [treeData]);
 
-    return (<>
-            <div ref={ref} className="overflow-auto"></div>
-            <span>Selected: {selected}</span>
-        </>
-    );
+    return (<div ref={ref} className="overflow-auto"></div>);
 }
 
 export default TreeView;

@@ -62,7 +62,7 @@ export enum WidgetType {
 
 export interface WidgetProps {
     label: string;
-    activeByDefault?: boolean;
+    active?: boolean;
     type: WidgetType;
     configuration?: string;
 }
