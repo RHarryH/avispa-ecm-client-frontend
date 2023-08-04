@@ -18,12 +18,12 @@
 
 import React, {useState} from "react";
 import {useEventListener} from "./event/EventContext";
-import PropertyPage, {PropertyPageProps} from "./PropertyPage";
+import PropertyPage, {PropertyPageConfig} from "./PropertyPage";
 import axios from "axios";
 
 interface PropertiesWidgetData {
     contextObject?: Object;
-    propertyPage?: PropertyPageProps;
+    propertyPage?: PropertyPageConfig;
 }
 
 function PropertiesWidget() {
@@ -44,10 +44,18 @@ function PropertiesWidget() {
         setPropertiesWidgetData({});
     });
 
+    function renderPropertyPage() {
+        if(propertiesWidgetData.propertyPage) {
+            return (<PropertyPage propertyPage={propertiesWidgetData.propertyPage}></PropertyPage>);
+        } else {
+            return (<span>Property Page for selected object is not defined</span>)
+        }
+    }
+
     return <div className="py3">
         {
             propertiesWidgetData.contextObject ?
-                (<PropertyPage></PropertyPage>) :
+                renderPropertyPage() :
                 (<span>Nothing is selected</span>)
         }
     </div>;

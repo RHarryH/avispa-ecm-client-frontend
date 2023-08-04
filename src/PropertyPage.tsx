@@ -16,12 +16,59 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export interface PropertyPageProps {
-
+interface PropertyPageProps {
+    propertyPage: PropertyPageConfig;
 }
 
-function PropertyPage({}:PropertyPageProps){
-    return <span>Test</span>;
+export interface PropertyPageConfig {
+    readonly: boolean;
+    size: string;
+    controls: Control[];
+}
+
+interface Control {
+    type: string;
+    conditions: Condition;
+
+    rows?: number;
+    cols?: number;
+    pattern?: string;
+    minLength?: number;
+    maxLength?: number;
+
+    label?: string;
+
+    typeName?:string;
+    typeNameExpression?: string;
+    dictionary?: string;
+    sortByLabel?: boolean;
+
+    min?:string|number;
+    max?:string|number;
+    step?:number;
+
+    name?: string;
+
+    expression?:string;
+
+    currency?:string;
+
+    tabs?: Tab[];
+    controls?: Control[];
+}
+
+interface Tab {
+    name: string;
+    controls: Control[];
+}
+
+interface Condition {
+    visibility: string;
+    requirement: string;
+}
+
+function PropertyPage({propertyPage}:PropertyPageProps){
+    return <></>;
 }
 
 export default PropertyPage;
