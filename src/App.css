@@ -25,3 +25,7 @@
   margin-left: 0 !important;
   border-top-left-radius: 0  !important;
 }
+
+.table > :not(:first-child) {
+  border-top: 2px solid currentColor;
+}
