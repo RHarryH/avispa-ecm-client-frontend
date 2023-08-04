@@ -18,7 +18,6 @@
 
 import {createContext, Dispatch, useContext, useEffect} from "react";
 import {EventAction, EventState, EventType} from "./EventReducer";
-import {WidgetType} from "../interface/AppProps";
 
 interface ContextProps {
     state: EventState
@@ -31,12 +30,12 @@ export function useEventContext() {
     return useContext(EventContext)
 }
 
-export function useEventListener(events: EventType[], handle: () => void) {
+export function useEventListener(events: EventType[], handle: (state:EventState) => void) {
     const {state} = useEventContext();
 
     useEffect(() => {
         if (state?.type && events.includes(state.type)) {
-            handle();
+            handle(state);
         }
     }, [state]);
 }
