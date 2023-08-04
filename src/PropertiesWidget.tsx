@@ -16,27 +16,41 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {useEffect, useState} from "react";
-import {useEventContext} from "./event/EventContext";
+import React, {useState} from "react";
+import {useEventListener} from "./event/EventContext";
+import PropertyPage, {PropertyPageProps} from "./PropertyPage";
+import axios from "axios";
 
-interface Test {
-    test: string;
+interface PropertiesWidgetData {
+    contextObject?: Object;
+    propertyPage?: PropertyPageProps;
 }
 
 function PropertiesWidget() {
-    const [propertiesWidgetData, setPropertiesWidgetData] = useState<Test>({
-        test: "test"
+    const [propertiesWidgetData, setPropertiesWidgetData] = useState<PropertiesWidgetData>({});
+
+    useEventListener(["REPOSITORY_ITEM_SELECTED"], (state) => {
+        axios.get<PropertiesWidgetData>('/widget/properties-widget/' + state.id)
+            .then(response => {
+                const widgetData = response.data;
+                setPropertiesWidgetData(widgetData);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
     });
 
-    const { state } = useEventContext();
+    useEventListener(["REPOSITORY_ITEM_DESELECTED"], () => {
+        setPropertiesWidgetData({});
+    });
 
-    useEffect(() => {
-        return setPropertiesWidgetData({
-            test: "test"
-        })
-    }, []);
-
-    return <>Selected: {state.id}</>;
+    return <div className="py3">
+        {
+            propertiesWidgetData.contextObject ?
+                (<PropertyPage></PropertyPage>) :
+                (<span>Nothing is selected</span>)
+        }
+    </div>;
 }
 
 export default PropertiesWidget;
