@@ -18,11 +18,12 @@
 
 import React, {useState} from "react";
 import {useEventListener} from "./event/EventContext";
-import PropertyPage, {PropertyPageConfig} from "./PropertyPage";
 import axios from "axios";
+import {PropertyPageConfig} from "./interface/PropertyPageConfig";
+import PropertyPage from "./propertypage/PropertyPage";
 
 interface PropertiesWidgetData {
-    contextObject?: Object;
+    objectFound?: boolean;
     propertyPage?: PropertyPageConfig;
 }
 
@@ -35,7 +36,7 @@ function PropertiesWidget() {
                 const widgetData = response.data;
                 setPropertiesWidgetData(widgetData);
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 console.log(error);
             })
     });
@@ -45,16 +46,20 @@ function PropertiesWidget() {
     });
 
     function renderPropertyPage() {
-        if(propertiesWidgetData.propertyPage) {
-            return (<PropertyPage propertyPage={propertiesWidgetData.propertyPage}></PropertyPage>);
+        if(propertiesWidgetData.objectFound) {
+            if (propertiesWidgetData.propertyPage) {
+                return <PropertyPage propertyPage={propertiesWidgetData.propertyPage}></PropertyPage>;
+            } else {
+                return <span>Property Page for selected object is not defined</span>;
+            }
         } else {
-            return (<span>Property Page for selected object is not defined</span>)
+            return <span>Object not found</span>;
         }
     }
 
-    return <div className="py3">
+    return <div className="py-3">
         {
-            propertiesWidgetData.contextObject ?
+            propertiesWidgetData.objectFound && propertiesWidgetData.propertyPage ?
                 renderPropertyPage() :
                 (<span>Nothing is selected</span>)
         }
