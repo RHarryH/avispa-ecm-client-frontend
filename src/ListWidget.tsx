@@ -18,19 +18,16 @@
 
 import React, {useCallback, useEffect, useState} from "react";
 import {Button, Table} from "react-bootstrap";
+import axios from "axios";
 
-interface Value {
-    key: string;
-    value: string;
-}
 interface ListData {
     id: string;
-    values: Value[];
+    values: any[];
 }
 interface ListDataProps {
     caption: string;
     typeName: string;
-    isDocumentType: boolean;
+    isDocument: boolean;
     emptyMessage: string;
     headers: string[];
     data: ListData[];
@@ -42,53 +39,23 @@ interface ListWidgetProps {
 
 function ListWidget({configuration}:ListWidgetProps) {
     const [listWidgetData, setListWidgetData] = useState<ListDataProps>({
-        caption: "Invoices",
-        typeName: "Invoice",
-        isDocumentType: true,
-        emptyMessage: "Empty",
+        caption: "",
+        typeName: "",
+        isDocument: false,
+        emptyMessage: "Empty list",
         headers: [],
         data: []
     });
 
     function fetchData() {
-        return setListWidgetData({
-            caption: "Invoices",
-            typeName: "Invoice",
-            isDocumentType: true,
-            emptyMessage: "No Invoices Available",
-            headers: [
-                "Serial Number",
-                "Invoice Name",
-                "Issue Name",
-                "Service Data",
-                "Comments"
-            ],
-            data: [{
-                id: "123",
-                values: [
-                    {
-                        key: "Serial Number",
-                        value: "1"
-                    },
-                    {
-                        key: "Invoice Name",
-                        value: "2"
-                    },
-                    {
-                        key: "Issue Name",
-                        value: "3"
-                    },
-                    {
-                        key: "Service Data",
-                        value: "4"
-                    },
-                    {
-                        key: "Comments",
-                        value: "5"
-                    }
-                ]
-            }]
-        })
+        axios.get<ListDataProps>('/widget/list-widget/' + configuration)
+            .then(response => {
+                const widgetData = response.data;
+                setListWidgetData(widgetData);
+            })
+            .catch(function (error) {
+                console.log(error);
+            })
     }
 
     useEffect(() => {
@@ -126,7 +93,7 @@ function ListWidget({configuration}:ListWidgetProps) {
                     <th scope="col">Edit</th>
                     <th scope="col">Delete</th>
                     {
-                        listWidgetData.isDocumentType ?
+                        listWidgetData.isDocument ?
                             <th scope="col">Download</th> :
                             null
                     }
@@ -142,13 +109,7 @@ function ListWidget({configuration}:ListWidgetProps) {
                     listWidgetData.data
                         .map(data =>
                             (<tr>
-                                {
-                                    data.values.map(value => (
-                                        value.key !== "pdfRenditionAvailable" ?
-                                            <td key={value.key}>{value.value}</td> :
-                                            null
-                                    ))
-                                }
+                                {getValues(data.values)}
                                 <td>
                                     <Button variant="" value={data.id} className="bi bi-pencil-fill" title={"Edit " + listWidgetData.typeName} onClick={e => editRow(data.id)}></Button>
                                 </td>
@@ -156,10 +117,10 @@ function ListWidget({configuration}:ListWidgetProps) {
                                     <Button variant="" value={data.id} className="bi bi-trash-fill" title={"Delete " + listWidgetData.typeName} onClick={e => deleteRow(data.id)}></Button>
                                 </td>
                                 {
-                                    listWidgetData.isDocumentType ?
+                                    listWidgetData.isDocument ?
                                         (<td>
                                             {
-                                                data.values.filter(value => value.key === "pdfRenditionAvailable").length ?
+                                                Object.keys(data.values).filter(key => key === "pdfRenditionAvailable").length ?
                                                 <Button variant="" value={data.id} className="bi bi-file-earmark-arrow-down-fill" title="Download PDF rendition" onClick={e => getRendition(data.id)}></Button> :
                                                 <></>
                                             }
@@ -171,6 +132,17 @@ function ListWidget({configuration}:ListWidgetProps) {
             </tbody>
         </Table>
     </div>);
+
+    function getValues(values: any[]) {
+        let result = [];
+        for (const [key, value] of Object.entries(values)) {
+            if(key !== "pdfRenditionAvailable") {
+                result.push((<td key={key}>{value}</td>))
+            }
+        }
+
+        return result;
+    }
 }
 
 export default ListWidget;
