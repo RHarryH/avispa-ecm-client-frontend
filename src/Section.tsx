@@ -86,7 +86,7 @@ function Section({location, widgets}:SectionProps){
                     {
                         widgets.map(widget => (
                             <Tab eventKey={widget.label.toLowerCase()} title={widget.label}>
-                                <Widget label={widget.label} type={widget.type}></Widget>
+                                <Widget label={widget.label} type={widget.type} configuration={widget.configuration}></Widget>
                             </Tab>
                         ))
                     }
