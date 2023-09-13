@@ -20,7 +20,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import TreeView from "./TreeView";
 import {Button, Col, Row} from "react-bootstrap";
 import axios from "axios";
-import {getFilenameFromHeader} from "./misc/Misc";
+import {processDownload} from "./misc/Misc";
 
 interface DirectoryNode {
     id: string;
@@ -55,16 +55,7 @@ function RepositoryWidget() {
     const exportData = useCallback(() => {
         axios.get(`/directory/export`, {responseType: 'blob'})
             .then(response => {
-                const type = response.headers['content-type'];
-                const filename = getFilenameFromHeader(response);
-                const blob = new Blob([response.data], { type: type });
-                const link = document.createElement('a');
-
-                link.href = window.URL.createObjectURL(blob)
-                link.download = filename;
-                link.click();
-
-                setTimeout(() => window.URL.revokeObjectURL(link.href), 0); // memory cleanup
+                processDownload(response);
             })
             .catch(function(error) {
                 console.log(error);

@@ -19,6 +19,7 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {Button, Table} from "react-bootstrap";
 import axios from "axios";
+import {processDownload} from "./misc/Misc";
 
 interface ListData {
     id: string;
@@ -75,7 +76,13 @@ function ListWidget({configuration}:ListWidgetProps) {
     }, []);
 
     const getRendition = useCallback((rowId:string) => {
-        return null;
+        axios.get(`/invoice/rendition/` + rowId, {responseType: 'blob'})
+            .then(response => {
+                processDownload(response);
+            })
+            .catch(function(error) {
+                console.log(error);
+            })
     }, []);
 
     return (

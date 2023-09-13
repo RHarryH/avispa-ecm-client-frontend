@@ -33,8 +33,6 @@ function Widget(widget: WidgetProps) {
         case WidgetType.LIST:
             return (<ListWidget configuration={widget.configuration}></ListWidget>);
     }
-
-    return (<></>);
 }
 function Section({location, widgets}:SectionProps){
     const [key, setKey] = useState<string>(getDefaultWidget(widgets));

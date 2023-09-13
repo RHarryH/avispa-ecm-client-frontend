@@ -18,13 +18,26 @@
 
 import {AxiosResponse} from "axios";
 
-export function getFilenameFromHeader(response: AxiosResponse) {
+export function processDownload(response: AxiosResponse) {
+    const type = response.headers['content-type'];
+    const filename = getFilenameFromHeader(response);
+    const blob = new Blob([response.data], {type: type});
+    const link = document.createElement('a');
+
+    link.href = window.URL.createObjectURL(blob)
+    link.download = filename;
+    link.click();
+
+    setTimeout(() => window.URL.revokeObjectURL(link.href), 0); // memory cleanup
+}
+
+function getFilenameFromHeader(response: AxiosResponse) {
     const disposition = response.headers['content-disposition'];
 
     if (disposition && disposition.indexOf('attachment') !== -1) {
         const filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
         const matches = filenameRegex.exec(disposition);
-        if (matches != null && matches[1]) {
+        if (matches?.[1]) {
             return matches[1].replace(/['"]/g, '');
         }
     }
