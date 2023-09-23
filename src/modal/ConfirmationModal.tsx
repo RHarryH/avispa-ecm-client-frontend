@@ -20,6 +20,7 @@ import React, {useCallback} from "react";
 import {Button, Modal} from "react-bootstrap";
 import axios, {Method} from "axios";
 import {useEventContext} from "../event/EventContext";
+import {EventType} from "../event/EventReducer";
 
 interface ActionProps {
     id: string,
@@ -27,6 +28,7 @@ interface ActionProps {
     method : Method
     successMessage: string
     errorMessage: string
+    eventType: EventType
 }
 
 interface ConfirmationModalProps {
@@ -42,9 +44,9 @@ function ConfirmationModal({show, title, message, action, onClose}:ConfirmationM
 
     const runAction = useCallback(() => {
         axios(action.endpoint, {method: action.method})
-            .then(response => {
+            .then(() => {
                 publishEvent({
-                    type: "LIST_ITEM_DELETED",
+                    type: action.eventType,
                     payload: {
                         id: action.id,
                         notification: {
@@ -56,7 +58,7 @@ function ConfirmationModal({show, title, message, action, onClose}:ConfirmationM
             })
             .catch(error => {
                 publishEvent({
-                    type: "LIST_ITEM_DELETED",
+                    type: action.eventType,
                     payload: {
                         id: action.id,
                         notification: {
