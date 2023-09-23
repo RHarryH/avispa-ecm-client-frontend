@@ -152,7 +152,8 @@ function ListWidget({configuration}:ListWidgetProps) {
                                         method: "delete",
                                         endpoint: listWidgetData.typeName + "/" + data.id,
                                         successMessage: listWidgetData.typeName + ' deleted successfully!',
-                                        errorMessage: 'Error when deleting ' + listWidgetData.typeName + '!'
+                                        errorMessage: 'Error when deleting ' + listWidgetData.typeName + '!',
+                                        eventType: "LIST_ITEM_DELETED"
                                     }}/>
                                 </td>
                                 {
