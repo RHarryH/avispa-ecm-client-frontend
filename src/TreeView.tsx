@@ -21,12 +21,14 @@ function TreeView({treeData}:TreeViewProps) {
                 if(data.action === "select_node") {
                     publishEvent({
                         type: "REPOSITORY_ITEM_SELECTED",
-                        payload: data.node.id
+                        payload: {
+                            id: data.node.id,
+                            focus: true
+                        }
                     })
                 } else if(data.action === "deselect_node") { // do not pass id
                     publishEvent({
-                        type: "REPOSITORY_ITEM_DESELECTED",
-                        payload: ""
+                        type: "REPOSITORY_ITEM_DESELECTED"
                     })
                 }
             })

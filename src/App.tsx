@@ -28,6 +28,7 @@ import {Row} from "react-bootstrap";
 import axios from "axios";
 import EventContext from "./event/EventContext";
 import {eventReducer} from "./event/EventReducer";
+import Notifications from "./modal/Notifications";
 
 function App() {
     const [appData, setAppData] = useState<AppProps>({
@@ -61,7 +62,7 @@ function App() {
             })
     }, []);
 
-    const [state, publishEvent ] = useReducer(eventReducer, {type: null, id: ""});
+    const [state, publishEvent ] = useReducer(eventReducer, {type: null});
 
     const eventProviderState = useMemo(() => (
         {
@@ -83,15 +84,16 @@ function App() {
 
             <main>
                 <Container fluid>
-                    <Row>
-                        <EventContext.Provider value={eventProviderState}>
+                    <EventContext.Provider value={eventProviderState}>
+                        <Row>
                             {
                                 appData.layout.sections.map(section => {
                                     return (<Section location={section.location} widgets={section.widgets}></Section>);
                                 })
                             }
-                        </EventContext.Provider>
-                    </Row>
+                        </Row>
+                        <Notifications/>
+                    </EventContext.Provider>
                 </Container>
             </main>
 

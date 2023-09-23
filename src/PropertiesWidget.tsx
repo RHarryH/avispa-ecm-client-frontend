@@ -21,6 +21,7 @@ import {useEventListener} from "./event/EventContext";
 import axios from "axios";
 import {PropertyPageConfig} from "./interface/PropertyPageConfig";
 import PropertyPage from "./propertypage/PropertyPage";
+import {RepositoryItemEventData} from "./event/EventReducer";
 
 interface PropertiesWidgetData {
     objectFound?: boolean;
@@ -31,7 +32,8 @@ function PropertiesWidget() {
     const [propertiesWidgetData, setPropertiesWidgetData] = useState<PropertiesWidgetData>({});
 
     useEventListener(["REPOSITORY_ITEM_SELECTED"], (state) => {
-        axios.get<PropertiesWidgetData>('/widget/properties-widget/' + state.id)
+        const data  = state.data as RepositoryItemEventData;
+        axios.get<PropertiesWidgetData>('/widget/properties-widget/' + data.id)
             .then(response => {
                 const widgetData = response.data;
                 setPropertiesWidgetData(widgetData);

@@ -17,9 +17,12 @@
  */
 
 import React, {useCallback, useEffect, useState} from "react";
-import {Button, Table} from "react-bootstrap";
+import {Button, OverlayTrigger, Table, Tooltip} from "react-bootstrap";
 import axios from "axios";
 import {processDownload} from "./misc/Misc";
+import ConfirmationModal from "./modal/ConfirmationModal";
+import {useEventListener} from "./event/EventContext";
+import {ListItemDeletedData} from "./event/EventReducer";
 
 interface ListData {
     id: string;
@@ -48,6 +51,22 @@ function ListWidget({configuration}:ListWidgetProps) {
         data: []
     });
 
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const handleDeleteModalShow = () => setShowDeleteModal(true);
+    const handleDeleteModalClose = () => setShowDeleteModal(false);
+
+    useEventListener(["LIST_ITEM_DELETED"], (state) => {
+        const data = state.data as ListItemDeletedData;
+        const id = data.id;
+        if(id) {
+            // copy element and filter out deleted row
+            const listWidgetDataCopy: ListDataProps = JSON.parse(JSON.stringify(listWidgetData));
+            listWidgetDataCopy.data = listWidgetDataCopy.data.filter(data => data.id !== id);
+
+            setListWidgetData(listWidgetDataCopy);
+        }
+    });
+
     function fetchData() {
         axios.get<ListDataProps>('/widget/list-widget/' + configuration)
             .then(response => {
@@ -71,9 +90,11 @@ function ListWidget({configuration}:ListWidgetProps) {
         return null;
     }, []);
 
-    const deleteRow = useCallback((rowId:string) => {
-        return null;
-    }, []);
+    const tooltip = (message:string) => (
+        <Tooltip id="tooltip">
+            {message}
+        </Tooltip>
+    );
 
     const getRendition = useCallback((rowId:string) => {
         axios.get(`/invoice/rendition/` + rowId, {responseType: 'blob'})
@@ -95,7 +116,7 @@ function ListWidget({configuration}:ListWidgetProps) {
                     {
                         listWidgetData.headers
                             .filter(header => header !== "pdfRenditionAvailable")
-                            .map(header => (<th scope="col">{header}</th>))
+                            .map((header, index) => (<th key={index} scope="col">{header}</th>))
                     }
                     <th scope="col">Edit</th>
                     <th scope="col">Delete</th>
@@ -115,21 +136,34 @@ function ListWidget({configuration}:ListWidgetProps) {
                 {
                     listWidgetData.data
                         .map(data =>
-                            (<tr>
+                            (<tr key={data.id}>
                                 {getValues(data.values)}
                                 <td>
-                                    <Button variant="" value={data.id} className="bi bi-pencil-fill" title={"Edit " + listWidgetData.typeName} onClick={e => editRow(data.id)}></Button>
+                                    <OverlayTrigger placement="bottom" overlay={tooltip('Edit ' + listWidgetData.typeName)}>
+                                        <Button variant="" value={data.id} className="bi bi-pencil-fill" onClick={e => editRow(data.id)}></Button>
+                                    </OverlayTrigger>
                                 </td>
                                 <td>
-                                    <Button variant="" value={data.id} className="bi bi-trash-fill" title={"Delete " + listWidgetData.typeName} onClick={e => deleteRow(data.id)}></Button>
+                                    <OverlayTrigger placement="bottom" overlay={tooltip('Delete ' + listWidgetData.typeName)}>
+                                        <Button variant="" className="bi bi-trash-fill" value="data.id" onClick={handleDeleteModalShow}/>
+                                    </OverlayTrigger>
+                                    <ConfirmationModal show={showDeleteModal} title="Deletion" message={'Do you really want to delete this ' + listWidgetData.typeName} onClose={handleDeleteModalClose} action={{
+                                        id: data.id,
+                                        method: "delete",
+                                        endpoint: listWidgetData.typeName + "/" + data.id,
+                                        successMessage: listWidgetData.typeName + ' deleted successfully!',
+                                        errorMessage: 'Error when deleting ' + listWidgetData.typeName + '!'
+                                    }}/>
                                 </td>
                                 {
                                     listWidgetData.isDocument ?
                                         (<td>
                                             {
                                                 Object.keys(data.values).filter(key => key === "pdfRenditionAvailable").length ?
-                                                <Button variant="" value={data.id} className="bi bi-file-earmark-arrow-down-fill" title="Download PDF rendition" onClick={e => getRendition(data.id)}></Button> :
-                                                <></>
+                                                    <OverlayTrigger placement="bottom" overlay={tooltip("Download PDF rendition")}>
+                                                        <Button variant="" value={data.id} className="bi bi-file-earmark-arrow-down-fill" onClick={e => getRendition(data.id)}/>
+                                                    </OverlayTrigger> :
+                                                    <></>
                                             }
                                         </td>):
                                         null
