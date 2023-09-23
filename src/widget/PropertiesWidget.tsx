@@ -17,11 +17,11 @@
  */
 
 import React, {useState} from "react";
-import {useEventListener} from "./event/EventContext";
 import axios from "axios";
-import {PropertyPageConfig} from "./interface/PropertyPageConfig";
-import PropertyPage from "./propertypage/PropertyPage";
-import {RepositoryItemEventData} from "./event/EventReducer";
+import {PropertyPageConfig} from "../interface/PropertyPageConfig";
+import {useEventListener} from "../event/EventContext";
+import {RepositoryItemEventData} from "../event/EventReducer";
+import PropertyPage from "../propertypage/PropertyPage";
 
 interface PropertiesWidgetData {
     objectFound?: boolean;

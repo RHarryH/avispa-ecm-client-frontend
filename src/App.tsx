@@ -28,7 +28,7 @@ import {Row} from "react-bootstrap";
 import axios from "axios";
 import EventContext from "./event/EventContext";
 import {eventReducer} from "./event/EventReducer";
-import Notifications from "./modal/Notifications";
+import Notifications from "./notification/Notifications";
 
 function App() {
     const [appData, setAppData] = useState<AppProps>({
