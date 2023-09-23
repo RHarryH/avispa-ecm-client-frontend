@@ -23,6 +23,7 @@ import ListWidget from "./ListWidget";
 import {Col, Tab, Tabs} from "react-bootstrap";
 import React, {useState} from "react";
 import {useEventListener} from "./event/EventContext";
+import {FocusableEventData} from "./event/EventReducer";
 
 function Widget(widget: WidgetProps) {
     switch(widget.type) {
@@ -37,7 +38,12 @@ function Widget(widget: WidgetProps) {
 function Section({location, widgets}:SectionProps){
     const [key, setKey] = useState<string>(getDefaultWidget(widgets));
 
-    useEventListener(["REPOSITORY_ITEM_SELECTED", "REPOSITORY_ITEM_DESELECTED"], () => {
+    useEventListener(["REPOSITORY_ITEM_SELECTED", "REPOSITORY_ITEM_DESELECTED"], (state) => {
+        const data = state.data as FocusableEventData;
+        if(!data?.focus) {
+            return;
+        }
+
         // focus on properties widget
         const propertiesWidget = widgets.find(widget => widget.type === WidgetType.PROPERTIES);
         const tabKey = propertiesWidget?.label.toLowerCase();
@@ -77,7 +83,7 @@ function Section({location, widgets}:SectionProps){
             <Col lg={sectionWidth}>
                 <Tabs
                     activeKey={key}
-                    onSelect={(k) => setKey(k ? k : "")}
+                    onSelect={(k) => setKey(k ?? "")}
                     id={id}
                     aria-label={ariaLabel}
                 >

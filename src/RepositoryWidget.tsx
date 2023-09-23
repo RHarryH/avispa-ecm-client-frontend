@@ -21,6 +21,7 @@ import TreeView from "./TreeView";
 import {Button, Col, Row} from "react-bootstrap";
 import axios from "axios";
 import {processDownload} from "./misc/Misc";
+import {useEventContext, useEventListener} from "./event/EventContext";
 
 interface DirectoryNode {
     id: string;
@@ -31,7 +32,18 @@ interface DirectoryNode {
 }
 
 function RepositoryWidget() {
+    const { publishEvent } = useEventContext();
     const [repositoryWidgetData, setRepositoryWidgetData] = useState<DirectoryNode[]>([]);
+
+    useEventListener(["LIST_ITEM_DELETED"], (state) => {
+        fetchData(); // reload full widget
+        publishEvent({
+            type: "REPOSITORY_ITEM_DESELECTED",
+            payload: {
+                focus: false
+            }
+        });
+    });
 
     useEffect(() => {
         return fetchData();
