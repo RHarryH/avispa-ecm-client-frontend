@@ -19,10 +19,10 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {Button, OverlayTrigger, Table, Tooltip} from "react-bootstrap";
 import axios from "axios";
-import {processDownload} from "./misc/Misc";
-import ConfirmationModal from "./modal/ConfirmationModal";
-import {useEventListener} from "./event/EventContext";
-import {ListItemDeletedData} from "./event/EventReducer";
+import {useEventListener} from "../event/EventContext";
+import {ListItemDeletedData} from "../event/EventReducer";
+import {processDownload} from "../misc/Misc";
+import ConfirmationModal from "../modal/ConfirmationModal";
 
 interface ListData {
     id: string;

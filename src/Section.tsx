@@ -17,20 +17,20 @@
  */
 
 import {SectionLocation, SectionProps, WidgetProps, WidgetType} from "./interface/AppProps";
-import RepositoryWidget from "./RepositoryWidget";
-import PropertiesWidget from "./PropertiesWidget";
-import ListWidget from "./ListWidget";
 import {Col, Tab, Tabs} from "react-bootstrap";
 import React, {useState} from "react";
 import {useEventListener} from "./event/EventContext";
 import {FocusableEventData} from "./event/EventReducer";
+import RepositoryWidget from "./widget/RepositoryWidget";
+import PropertiesWidget from "./widget/PropertiesWidget";
+import ListWidget from "./widget/ListWidget";
 
 function Widget(widget: WidgetProps) {
     switch(widget.type) {
         case WidgetType.REPOSITORY:
-            return (<RepositoryWidget></RepositoryWidget>);
+            return (<RepositoryWidget/>);
         case WidgetType.PROPERTIES:
-            return (<PropertiesWidget></PropertiesWidget>);
+            return (<PropertiesWidget/>);
         case WidgetType.LIST:
             return (<ListWidget configuration={widget.configuration}></ListWidget>);
     }

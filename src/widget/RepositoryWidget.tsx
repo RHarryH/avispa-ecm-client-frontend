@@ -17,11 +17,11 @@
  */
 
 import React, {useCallback, useEffect, useState} from "react";
-import TreeView from "./TreeView";
 import {Button, Col, Row} from "react-bootstrap";
 import axios from "axios";
-import {processDownload} from "./misc/Misc";
-import {useEventContext, useEventListener} from "./event/EventContext";
+import {useEventContext, useEventListener} from "../event/EventContext";
+import {processDownload} from "../misc/Misc";
+import TreeView from "../TreeView";
 
 interface DirectoryNode {
     id: string;
