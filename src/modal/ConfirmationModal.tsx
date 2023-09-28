@@ -81,10 +81,10 @@ function ConfirmationModal({show, title, message, action, onClose}:ConfirmationM
                 </Modal.Header>
                 <Modal.Body>{message}</Modal.Body>
                 <Modal.Footer>
-                    <Button variant="secondary" onClick={onClose}>
+                    <Button variant="danger" onClick={onClose}>
                         Reject
                     </Button>
-                    <Button variant="primary" onClick={runAction}>
+                    <Button type="submit" variant="primary" onClick={runAction}>
                         Accept
                     </Button>
                 </Modal.Footer>

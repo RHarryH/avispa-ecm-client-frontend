@@ -17,14 +17,14 @@
  */
 
 import {FormSelect} from "react-bootstrap";
-import {ComboRadio} from "../interface/PropertyPageConfig";
+import {ComboRadio, HTMLProperty} from "../interface/PropertyPageConfig";
 
 interface ComboProps {
     combo: ComboRadio;
-    propertyValue: any;
+    property: HTMLProperty;
 }
 
-function ComboControl({combo, propertyValue}: ComboProps) {
+function ComboControl({combo, property}: ComboProps) {
     function getComboOptions(values: Map<string, string>, currentKey:string) {
         const array = [];
         for (let [key, value] of values) {
@@ -35,11 +35,11 @@ function ComboControl({combo, propertyValue}: ComboProps) {
     }
 
     const dictionaryMap = new Map(Object.entries(combo.options));
-    const currentKey = typeof propertyValue === 'string' || !propertyValue ? propertyValue : propertyValue.id;
+    const currentKey = typeof property.value === 'string' || !property.value ? property.value : property.value.id;
     const dictionaryHas = dictionaryMap.has(currentKey);
 
     return (
-        <FormSelect id={combo.property} name={combo.property} required={combo.required}>
+        <FormSelect id={property.id} name={property.name} required={combo.required}>
             {
                 currentKey && !dictionaryHas ?
                     (<option value="" selected disabled hidden>DEPRECATED</option>) :

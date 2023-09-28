@@ -24,12 +24,13 @@ import React from "react";
 
 interface PropertyControlComponentProps {
     control: PropertyControlProps;
+    rootPropertyName?: string;
     valueIndex?: number;
 }
 
-function PropertyControl({control, valueIndex = -1}: PropertyControlComponentProps) {
+function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: PropertyControlComponentProps) {
 
-    function getControlValue(control: PropertyControlProps, valueIndex: number = -1) {
+    function getControlValue(control: PropertyControlProps, valueIndex: number) {
         if(valueIndex === -1) {
             return control.value;
         } else {
@@ -37,29 +38,51 @@ function PropertyControl({control, valueIndex = -1}: PropertyControlComponentPro
         }
     }
 
+    function getPropertyId(control: PropertyControlProps, rootPropertyName: string, valueIndex: number) {
+        if(!rootPropertyName && valueIndex === -1) {
+            return control.property;
+        } else {
+            return rootPropertyName + valueIndex + '.' + control.property;
+        }
+    }
+
+    function getPropertyName(control: PropertyControlProps, rootPropertyName: string, valueIndex: number) {
+        if(!rootPropertyName && valueIndex === -1) {
+            return control.property;
+        } else {
+            return rootPropertyName + '[' + valueIndex + '].' + control.property;
+        }
+    }
+
+    const id = getPropertyName(control, rootPropertyName, valueIndex);
+    const name = getPropertyName(control, rootPropertyName, valueIndex);
     const value = getControlValue(control, valueIndex);
 
     switch (control.type) {
         case 'combo':
             const combo = control as ComboRadio;
-            return <ComboControl combo={combo} propertyValue={value}/>
+            return <ComboControl combo={combo} property={{
+                'id': id,
+                'name': name,
+                'value': value
+            }}/>
         case 'date':
             const date = control as Date;
             return (
                 <FormControl type="date" min={date.min} max={date.max} step={date.step}
-                             id={date.property} name={date.property} value={value} required={date.required}/>
+                             id={id} name={name} value={value} required={date.required}/>
             );
         case 'datetime':
             const datetime = control as Date;
             return (
                 <FormControl type="datetime-local" min={datetime.min} max={datetime.max} step={datetime.step}
-                             id={datetime.property} name={datetime.property} value={value} required={datetime.required}/>
+                             id={id} name={name} value={value} required={datetime.required}/>
             );
         case 'money':
             const money = control as Money;
             return (
                 <InputGroup>
-                    <FormControl type="text" id={money.property} name={money.property} value={value} required={money.required}/>
+                    <FormControl type="text" id={id} name={name} value={value} required={money.required}/>
                     <InputGroup.Text>{money.currency}</InputGroup.Text>
                 </InputGroup>
             );
@@ -67,23 +90,27 @@ function PropertyControl({control, valueIndex = -1}: PropertyControlComponentPro
             const number = control as Number;
             return (
                 <FormControl type="number"  min={number.min} max={number.max} step={number.step}
-                             id={number.property} name={number.property} value={value} required={number.required}/>
+                             id={id} name={name} value={value} required={number.required}/>
             );
         case 'radio':
             const radio = control as ComboRadio;
-            return <RadioControl radio={radio} propertyValue={value}/>
+            return <RadioControl radio={radio} property={{
+                'id': id,
+                'name': name,
+                'value': value
+            }}/>
         case 'text':
         case 'email':
             const text = control as Text;
             return (
                 <FormControl type={text.type} pattern={text.pattern} minLength={text.minLength}
-                             maxLength={text.maxLength} id={text.property} name={text.property} value={value} required={text.required}/>
+                             maxLength={text.maxLength} id={id} name={name} value={value} required={text.required}/>
             );
         case 'textarea':
             const textarea = control as TextArea;
             return (
                 <FormControl as="textarea" rows={textarea.rows} cols={textarea.cols} minLength={textarea.minLength}
-                             maxLength={textarea.maxLength} id={textarea.property} name={textarea.property} value={value}  required={textarea.required}/>
+                             maxLength={textarea.maxLength} id={id} name={name} value={value}  required={textarea.required}/>
             );
         default:
             return <span>Unknown control of '{control.type}' type</span>;
