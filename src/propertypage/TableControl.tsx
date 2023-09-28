@@ -38,14 +38,14 @@ function TableControl({table, readonly}: TableControlComponentProps) {
                     {
                         table.controls.map(control=> (
                             <td scope="row">
-                                <PropertyControl control={control} valueIndex={i}/>
+                                <PropertyControl control={control} rootPropertyName={table.property} valueIndex={i}/>
                             </td>
                         ))
                     }
                     {
                         !readonly ? (
                             <td scope="row">
-                                <button className={"bi bi-trash-fill align-middle " + table.property + "-table-delete-button"}></button>
+                                <Button variant="" className={"bi bi-trash-fill align-middle " + table.property + "-table-delete-button"} value={i}></Button>
                             </td>
                         ) : null
                     }

@@ -16,27 +16,27 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {ComboRadio} from "../interface/PropertyPageConfig";
+import {ComboRadio, HTMLProperty} from "../interface/PropertyPageConfig";
 import {FormCheck} from "react-bootstrap";
 import React from "react";
 
 interface RadioProps {
     radio: ComboRadio;
-    propertyValue: any;
+    property: HTMLProperty;
 }
 
-function RadioControl({radio, propertyValue}: RadioProps) {
+function RadioControl({radio, property}: RadioProps) {
     function getRadioOptions(values: Map<string, string>) {
         const array = [];
         let index = 0;
         for (let [key, value] of values) {
-            array.push(<FormCheck type="radio" id={radio.property + index++} name={radio.property} inline label={value} value={key} checked={key === currentKey} required={radio.required}/>);
+            array.push(<FormCheck type="radio" id={property.id + index++} name={property.name} inline label={value} value={key} checked={key === currentKey} required={radio.required}/>);
         }
 
         return <>{array}</>;
     }
 
-    const currentKey = typeof propertyValue === 'string' || !propertyValue ? propertyValue : propertyValue.id;
+    const currentKey = typeof property.value === 'string' || !property.value ? property.value : property.value.id;
     const dictionaryMap = new Map(Object.entries(radio.options));
 
     return getRadioOptions(dictionaryMap);

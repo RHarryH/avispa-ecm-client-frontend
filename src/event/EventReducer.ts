@@ -1,4 +1,4 @@
-import {NotificationProps} from "../modal/Notifications";
+import {NotificationProps} from "../notification/Notifications";
 
 export type EventType = "REPOSITORY_ITEM_SELECTED" |
     "REPOSITORY_ITEM_DESELECTED" |

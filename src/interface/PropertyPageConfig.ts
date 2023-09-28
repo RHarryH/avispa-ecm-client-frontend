@@ -22,9 +22,15 @@ export interface PropertyPageConfig {
     controls: Control[];
 }
 
+export interface HTMLProperty {
+    id: string;
+    name: string;
+    value: any;
+}
+
 export interface Control {
     type: string;
-    conditions: Conditions;
+    conditions?: Conditions;
 }
 
 interface Conditions {
