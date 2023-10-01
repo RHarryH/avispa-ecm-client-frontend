@@ -57,8 +57,7 @@ function Notification({type, message, onRemove}:NotificationProps) {
     }
 
     return (
-        // TODO: wait for React Bootstrap update
-        <Toast show={show} delay={5000} /*onExit={onRemove}*/ onClose={() => {setShow(false); onRemove();}} autohide>
+        <Toast show={show} delay={5000} onExited={onRemove} onClose={() => {setShow(false)}} autohide>
             <Toast.Header className={type}>
                 <strong className={"me-auto bi " + getIconClass(type)}>{'\u00A0' + getHeaderTitle(type)}</strong>
             </Toast.Header>

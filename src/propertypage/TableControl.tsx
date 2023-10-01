@@ -32,19 +32,19 @@ function TableControl({table, readonly}: TableControlComponentProps) {
         for(let i = 0; i < table.size; i++) {
             array.push(
                 <tr>
-                    <th className="row-count align-middle" scope="row">
+                    <th className="row-count align-middle" scope="col">
                         {i + 1}
                     </th>
                     {
                         table.controls.map(control=> (
-                            <td scope="row">
+                            <td>
                                 <PropertyControl control={control} rootPropertyName={table.property} valueIndex={i}/>
                             </td>
                         ))
                     }
                     {
-                        !readonly ? (
-                            <td scope="row">
+                        !readonly && i !== 0 ? (
+                            <td>
                                 <Button variant="" className={"bi bi-trash-fill align-middle " + table.property + "-table-delete-button"} value={i}></Button>
                             </td>
                         ) : null
