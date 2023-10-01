@@ -25,10 +25,10 @@ interface ComboProps {
 }
 
 function ComboControl({combo, property}: ComboProps) {
-    function getComboOptions(values: Map<string, string>, currentKey:string) {
+    function getComboOptions(values: Map<string, string>) {
         const array = [];
         for (let [key, value] of values) {
-            array.push(<option value={key} selected={key === currentKey}>{value}</option>);
+            array.push(<option value={key}>{value}</option>);
         }
 
         return <>{array}</>;
@@ -39,13 +39,13 @@ function ComboControl({combo, property}: ComboProps) {
     const dictionaryHas = dictionaryMap.has(currentKey);
 
     return (
-        <FormSelect id={property.id} name={property.name} required={combo.required}>
+        <FormSelect id={property.id} name={property.name} defaultValue={currentKey} required={combo.required}>
             {
                 currentKey && !dictionaryHas ?
                     (<option value="" selected disabled hidden>DEPRECATED</option>) :
                     null
             }
-            {getComboOptions(dictionaryMap, currentKey)}
+            {getComboOptions(dictionaryMap)}
         </FormSelect>
     );
 }
