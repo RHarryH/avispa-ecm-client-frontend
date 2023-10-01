@@ -28,7 +28,7 @@ function ComboControl({combo, property}: ComboProps) {
     function getComboOptions(values: Map<string, string>, currentKey:string) {
         const array = [];
         for (let [key, value] of values) {
-            array.push(<option value={key} selected={key == currentKey}>{value}</option>);
+            array.push(<option value={key} selected={key === currentKey}>{value}</option>);
         }
 
         return <>{array}</>;

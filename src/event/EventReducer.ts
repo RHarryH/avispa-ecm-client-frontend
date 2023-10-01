@@ -13,19 +13,19 @@ export interface RepositoryItemEventData extends FocusableEventData{
     id?: string
 }
 
-export interface ListItemDeletedData {
+export interface ListItemDeletedEventData {
     id: string,
     notification: NotificationProps
 }
 
 export type EventState = {
     type: EventType;
-    data?: RepositoryItemEventData|ListItemDeletedData;
+    data?: RepositoryItemEventData|ListItemDeletedEventData;
 };
 
 export type EventAction = {
     type: EventType;
-    payload?: RepositoryItemEventData|ListItemDeletedData;
+    payload?: RepositoryItemEventData|ListItemDeletedEventData;
 }
 
 export const eventReducer = (state: EventState, action: EventAction): EventState => {

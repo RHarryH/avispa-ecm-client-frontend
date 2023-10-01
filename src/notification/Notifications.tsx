@@ -20,7 +20,7 @@ import React, {useState} from "react";
 import {ToastContainer} from "react-bootstrap";
 import Notification, {NotificationType} from "./Notification";
 import {useEventListener} from "../event/EventContext";
-import {ListItemDeletedData} from "../event/EventReducer";
+import {ListItemDeletedEventData} from "../event/EventReducer";
 
 export interface NotificationProps {
     type: NotificationType;
@@ -40,7 +40,7 @@ function Notifications() {
         setNotifications((notifications) => notifications.filter((e) => e.id !== id));
 
     useEventListener(["LIST_ITEM_DELETED"], (state) => {
-        const data = state.data as ListItemDeletedData;
+        const data = state.data as ListItemDeletedEventData;
         addNotification({
             id: Math.random(),
             notification: data.notification
@@ -50,7 +50,7 @@ function Notifications() {
     return (
         <div aria-live="polite" aria-atomic="true">
             <ToastContainer className="position-fixed p-3 mb-5" position="bottom-end" style={{ zIndex: 1 }}>
-                {notifications.map(({ id, notification }, index) => (
+                {notifications.map(({ id, notification }) => (
                     <Notification key={id} {...notification} onRemove={() => removeNotification(id)} />
                 ))}
             </ToastContainer>
