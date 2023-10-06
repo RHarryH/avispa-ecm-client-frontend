@@ -3,6 +3,8 @@ import {NotificationProps} from "../notification/Notifications";
 export type EventType = "REPOSITORY_ITEM_SELECTED" |
     "REPOSITORY_ITEM_DESELECTED" |
     "LIST_ITEM_DELETED" |
+    "ITEM_UPSERT" |
+    "ERROR_EVENT" |
     null;
 
 export interface FocusableEventData {
@@ -18,28 +20,28 @@ export interface ListItemDeletedEventData {
     notification: NotificationProps
 }
 
+export interface ItemUpsertedEventData extends FocusableEventData {
+    id?:string;
+    upsertedResource: string;
+}
+
 export type EventState = {
     type: EventType;
-    data?: RepositoryItemEventData|ListItemDeletedEventData;
+    data?: RepositoryItemEventData|ListItemDeletedEventData|ItemUpsertedEventData;
 };
 
 export type EventAction = {
     type: EventType;
-    payload?: RepositoryItemEventData|ListItemDeletedEventData;
+    payload?: RepositoryItemEventData|ListItemDeletedEventData|ItemUpsertedEventData;
 }
 
 export const eventReducer = (state: EventState, action: EventAction): EventState => {
-    switch (action.type) {
-        case 'REPOSITORY_ITEM_SELECTED':
-        case "REPOSITORY_ITEM_DESELECTED":
-        case 'LIST_ITEM_DELETED':
-            return {
-                type: action.type,
-                data: action.payload
-            };
-        default:
-            return {
-                type: null
-            };
-    }
+    return action.type ?
+        {
+            type: action.type,
+            data: action.payload
+        } :
+        {
+            type: null
+        };
 }

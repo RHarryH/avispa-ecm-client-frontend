@@ -54,7 +54,7 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
         }
     }
 
-    const id = getPropertyName(control, rootPropertyName, valueIndex);
+    const id = getPropertyId(control, rootPropertyName, valueIndex);
     const name = getPropertyName(control, rootPropertyName, valueIndex);
     const value = getControlValue(control, valueIndex);
 
@@ -111,6 +111,10 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             return (
                 <FormControl as="textarea" rows={textarea.rows} cols={textarea.cols} minLength={textarea.minLength}
                              maxLength={textarea.maxLength} id={id} name={name} defaultValue={value} required={textarea.required}/>
+            );
+        case 'hidden':
+            return (
+                <FormControl type={control.type} id={id} name={name} defaultValue={value} required={control.required}/>
             );
         default:
             return <span>Unknown control of '{control.type}' type</span>;

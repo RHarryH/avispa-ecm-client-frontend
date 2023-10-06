@@ -20,7 +20,7 @@ import {SectionLocation, SectionProps, WidgetProps, WidgetType} from "./interfac
 import {Col, Tab, Tabs} from "react-bootstrap";
 import React, {useState} from "react";
 import {useEventListener} from "./event/EventContext";
-import {FocusableEventData} from "./event/EventReducer";
+import {FocusableEventData, ItemUpsertedEventData} from "./event/EventReducer";
 import RepositoryWidget from "./widget/RepositoryWidget";
 import PropertiesWidget from "./widget/PropertiesWidget";
 import ListWidget from "./widget/ListWidget";
@@ -38,6 +38,7 @@ function Widget(widget: WidgetProps) {
 function Section({location, widgets}:SectionProps){
     const [key, setKey] = useState<string>(getDefaultWidget(widgets));
 
+    // FOCUS EVENTS SHOULD GO ALWAYS HERE
     useEventListener(["REPOSITORY_ITEM_SELECTED", "REPOSITORY_ITEM_DESELECTED"], (state) => {
         const data = state.data as FocusableEventData;
         if(!data?.focus) {
@@ -49,6 +50,25 @@ function Section({location, widgets}:SectionProps){
         const tabKey = propertiesWidget?.label.toLowerCase();
         if (tabKey) {
             setKey(tabKey);
+        }
+    });
+
+    useEventListener(["ITEM_UPSERT"], (state) => {
+        const data = state.data as ItemUpsertedEventData;
+        if(!data?.focus) {
+            return;
+        }
+
+        console.log(data.upsertedResource);
+        console.log(widgets.map(widget => [widget.type, widget.resource]));
+
+        // focus on list widget
+        const listWidget = widgets.find(widget => widget.type === WidgetType.LIST && widget.resource === data.upsertedResource);
+        if(listWidget) {
+            const tabKey = getTabKey(listWidget);
+            if (tabKey) {
+                setKey(tabKey);
+            }
         }
     });
 
@@ -67,7 +87,11 @@ function Section({location, widgets}:SectionProps){
             widget = widgets[0];
         }
 
-        return widget ? widget.label.toLowerCase() : "";
+        return widget ? getTabKey(widget) : "";
+    }
+
+    function getTabKey(widget: WidgetProps) {
+        return widget.resource ? widget.resource : widget.label.toLowerCase();
     }
 
     if(widgets.length) {
@@ -89,7 +113,7 @@ function Section({location, widgets}:SectionProps){
                 >
                     {
                         widgets.map(widget => (
-                            <Tab eventKey={widget.label.toLowerCase()} title={widget.label}>
+                            <Tab eventKey={getTabKey(widget)} title={widget.label}>
                                 <Widget label={widget.label} type={widget.type} configuration={widget.configuration}></Widget>
                             </Tab>
                         ))

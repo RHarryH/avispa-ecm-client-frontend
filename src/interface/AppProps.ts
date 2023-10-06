@@ -36,6 +36,7 @@ export interface Menu {
 export interface MenuItem {
     label: string;
     items?: MenuItem[];
+    resource?: string;
     action?: string;
 }
 
@@ -64,6 +65,7 @@ export interface WidgetProps {
     label: string;
     active?: boolean;
     type: WidgetType;
+    resource?:string;
     configuration?: string;
 }
 

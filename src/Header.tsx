@@ -22,22 +22,39 @@ import Navbar from 'react-bootstrap/Navbar';
 import NavDropdown from 'react-bootstrap/NavDropdown';
 import {Menu, MenuItem} from "./interface/AppProps";
 import {DropDirection} from "react-bootstrap/DropdownContext";
+import AdvancedModal from "./modal/AdvancedModal";
+import {useState} from "react";
 
 interface HeaderProps {
     brand: string;
     menu: Menu;
 }
 
+interface ModalProps {
+    show: boolean;
+    action?: string;
+}
+
 function Header({brand, menu}:HeaderProps) {
+    let [modalProps, setModalProps] = useState<ModalProps>({
+        show: false
+    });
+    const handleModalShow = (action?: string) => setModalProps({
+        show: true,
+        action: action
+    });
+    const handleModalClose = () => setModalProps({
+        show: false
+    });
 
     function createMenu(items:MenuItem[]) {
         return items.map(item => createItems(item));
     }
     function createItems(item:MenuItem) {
-        if(item.items && item.items.length) {
+        if(item.items?.length) {
             return createSubMenu(item.label, item.items);
         } else {
-            return (<Nav.Link href={item.action}>{item.label}</Nav.Link>);
+            return (<Nav.Link onClick={() => handleModalShow(item.action)}>{item.label}</Nav.Link>);
         }
     }
 
@@ -52,23 +69,26 @@ function Header({brand, menu}:HeaderProps) {
     }
 
     function createSubItem(subItem:MenuItem) {
-        if(subItem.items && subItem.items.length) {
+        if(subItem.items?.length) {
             return createSubMenu(subItem.label, subItem.items, "end");
         } else {
-            return (<NavDropdown.Item href={subItem.action}>{subItem.label}</NavDropdown.Item>);
+            return (<NavDropdown.Item onClick={() => handleModalShow(subItem.action)}>{subItem.label}</NavDropdown.Item>)
         }
     }
 
     return (
-        <Navbar expand="md" fixed="top" bg="dark" data-bs-theme="dark" aria-label="Navigation bar">
-            <Container fluid>
-                <Navbar.Brand href="#home">{brand}</Navbar.Brand>
-                <Navbar.Toggle aria-controls="basic-navbar-nav" aria-expanded="false" aria-label="Toggle navigation"/>
-                <Navbar.Collapse id="basic-navbar-nav">
-                    <Nav className="me-auto">{createMenu(menu.items)}</Nav>
-                </Navbar.Collapse>
-            </Container>
-        </Navbar>
+        <>
+            <Navbar expand="md" fixed="top" bg="dark" data-bs-theme="dark" aria-label="Navigation bar">
+                <Container fluid>
+                    <Navbar.Brand href="#home">{brand}</Navbar.Brand>
+                    <Navbar.Toggle aria-controls="basic-navbar-nav" aria-expanded="false" aria-label="Toggle navigation"/>
+                    <Navbar.Collapse id="basic-navbar-nav">
+                        <Nav className="me-auto">{createMenu(menu.items)}</Nav>
+                    </Navbar.Collapse>
+                </Container>
+            </Navbar>
+            <AdvancedModal show={modalProps.show} action={modalProps.action ?? ''} onClose={handleModalClose}/>
+        </>
     );
 }
 
