@@ -58,7 +58,7 @@ function ConfirmationModal({show, title, message, action, onClose}:ConfirmationM
             })
             .catch(error => {
                 publishEvent({
-                    type: action.eventType,
+                    type: "ERROR_EVENT",
                     payload: {
                         id: action.id,
                         notification: {
@@ -71,7 +71,7 @@ function ConfirmationModal({show, title, message, action, onClose}:ConfirmationM
             .finally(() => {
                 onClose();
             })
-    }, []);
+    }, [action]);
 
     return (
         <>

@@ -79,7 +79,9 @@ function App() {
             </Helmet>
 
             <header>
-                <Header brand={appData.shortName} menu={appData.header.menu}/>
+                <EventContext.Provider value={eventProviderState}>
+                    <Header brand={appData.shortName} menu={appData.header.menu}/>
+                </EventContext.Provider>
             </header>
 
             <main>

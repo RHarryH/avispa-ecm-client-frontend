@@ -39,7 +39,7 @@ function Notifications() {
     const removeNotification = (id: number) =>
         setNotifications((notifications) => notifications.filter((e) => e.id !== id));
 
-    useEventListener(["LIST_ITEM_DELETED"], (state) => {
+    useEventListener(["LIST_ITEM_DELETED", "ITEM_UPSERT", "ERROR_EVENT"], (state) => {
         const data = state.data as ListItemDeletedEventData;
         addNotification({
             id: Math.random(),

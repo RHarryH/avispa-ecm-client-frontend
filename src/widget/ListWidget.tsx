@@ -20,9 +20,10 @@ import React, {useCallback, useEffect, useState} from "react";
 import {Button, OverlayTrigger, Table, Tooltip} from "react-bootstrap";
 import axios from "axios";
 import {useEventListener} from "../event/EventContext";
-import {ListItemDeletedData} from "../event/EventReducer";
+import {ListItemDeletedEventData} from "../event/EventReducer";
 import {processDownload} from "../misc/Misc";
 import ConfirmationModal from "../modal/ConfirmationModal";
+import AdvancedModal from "../modal/AdvancedModal";
 
 interface ListData {
     id: string;
@@ -30,48 +31,73 @@ interface ListData {
 }
 interface ListDataProps {
     caption: string;
-    typeName: string;
+    resource: string;
     isDocument: boolean;
     emptyMessage: string;
     headers: string[];
-    data: ListData[];
 }
 
 interface ListWidgetProps {
     configuration?: string;
 }
 
+interface ModalProps {
+    show: boolean;
+    rowId?: string;
+}
+
 function ListWidget({configuration}:ListWidgetProps) {
     const [listWidgetData, setListWidgetData] = useState<ListDataProps>({
         caption: "",
-        typeName: "",
+        resource: "",
         isDocument: false,
         emptyMessage: "Empty list",
-        headers: [],
-        data: []
+        headers: []
+    });
+    const [data, setData] = useState<ListData[]>([]);
+
+    // delete modal
+    const [deleteModalProps, setDeleteModalProps] = useState<ModalProps>({
+        show: false
+    });
+    const handleDeleteModalShow = (rowId: string) => setDeleteModalProps({
+        show: true,
+        rowId: rowId
+    });
+    const handleDeleteModalClose = () => setDeleteModalProps({
+        show: false
     });
 
-    const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const handleDeleteModalShow = () => setShowDeleteModal(true);
-    const handleDeleteModalClose = () => setShowDeleteModal(false);
+    // update modal
+    const [editModalProps, setEditModalProps] = useState<ModalProps>({
+        show: false
+    });
+    const handleEditModalShow = (rowId: string) => setEditModalProps({
+        show: true,
+        rowId: rowId
+    });
+    const handleEditModalClose = () => setEditModalProps({
+        show: false
+    });
 
     useEventListener(["LIST_ITEM_DELETED"], (state) => {
-        const data = state.data as ListItemDeletedData;
-        const id = data.id;
+        const eventData = state.data as ListItemDeletedEventData;
+        const id = eventData.id;
         if(id) {
-            // copy element and filter out deleted row
-            const listWidgetDataCopy: ListDataProps = JSON.parse(JSON.stringify(listWidgetData));
-            listWidgetDataCopy.data = listWidgetDataCopy.data.filter(data => data.id !== id);
-
-            setListWidgetData(listWidgetDataCopy);
+            setData(data.filter(row => row.id !== id));
         }
     });
 
+    useEventListener(["ITEM_UPSERT"], () => {
+        reloadData();
+    });
+
     function fetchData() {
-        axios.get<ListDataProps>('/widget/list-widget/' + configuration)
+        axios.get<any>('/widget/list-widget/' + configuration)
             .then(response => {
                 const widgetData = response.data;
                 setListWidgetData(widgetData);
+                setData(widgetData.data);
             })
             .catch(function (error) {
                 console.log(error);
@@ -84,10 +110,6 @@ function ListWidget({configuration}:ListWidgetProps) {
 
     const reloadData = useCallback(() => {
         return fetchData();
-    }, []);
-
-    const editRow = useCallback((rowId:string) => {
-        return null;
     }, []);
 
     const tooltip = (message:string) => (
@@ -129,40 +151,32 @@ function ListWidget({configuration}:ListWidgetProps) {
             </thead>
             <tbody>
                 {
-                    !listWidgetData.data.length ?
+                    !data.length ?
                         <tr><td colSpan={100}>{listWidgetData.emptyMessage}</td></tr> :
                         null
                 }
                 {
-                    listWidgetData.data
-                        .map(data =>
-                            (<tr key={data.id}>
-                                {getValues(data.values)}
+                    data
+                        .map(row =>
+                            (<tr key={row.id}>
+                                {getValues(row.values)}
                                 <td>
-                                    <OverlayTrigger placement="bottom" overlay={tooltip('Edit ' + listWidgetData.typeName)}>
-                                        <Button variant="" value={data.id} className="bi bi-pencil-fill" onClick={e => editRow(data.id)}></Button>
+                                    <OverlayTrigger placement="bottom" overlay={tooltip('Edit ' + listWidgetData.resource)}>
+                                        <Button variant="" value={row.id} className="bi bi-pencil-fill" onClick={() => handleEditModalShow(row.id)}></Button>
                                     </OverlayTrigger>
                                 </td>
                                 <td>
-                                    <OverlayTrigger placement="bottom" overlay={tooltip('Delete ' + listWidgetData.typeName)}>
-                                        <Button variant="" className="bi bi-trash-fill" value="data.id" onClick={handleDeleteModalShow}/>
+                                    <OverlayTrigger placement="bottom" overlay={tooltip('Delete ' + listWidgetData.resource)}>
+                                        <Button variant="" value={row.id} className="bi bi-trash-fill" onClick={() => handleDeleteModalShow(row.id)}/>
                                     </OverlayTrigger>
-                                    <ConfirmationModal show={showDeleteModal} title="Deletion" message={'Do you really want to delete this ' + listWidgetData.typeName} onClose={handleDeleteModalClose} action={{
-                                        id: data.id,
-                                        method: "delete",
-                                        endpoint: listWidgetData.typeName + "/" + data.id,
-                                        successMessage: listWidgetData.typeName + ' deleted successfully!',
-                                        errorMessage: 'Error when deleting ' + listWidgetData.typeName + '!',
-                                        eventType: "LIST_ITEM_DELETED"
-                                    }}/>
                                 </td>
                                 {
                                     listWidgetData.isDocument ?
                                         (<td>
                                             {
-                                                Object.keys(data.values).filter(key => key === "pdfRenditionAvailable").length ?
+                                                Object.keys(row.values).filter(key => key === "pdfRenditionAvailable").length ?
                                                     <OverlayTrigger placement="bottom" overlay={tooltip("Download PDF rendition")}>
-                                                        <Button variant="" value={data.id} className="bi bi-file-earmark-arrow-down-fill" onClick={e => getRendition(data.id)}/>
+                                                        <Button variant="" value={row.id} className="bi bi-file-earmark-arrow-down-fill" onClick={e => getRendition(row.id)}/>
                                                     </OverlayTrigger> :
                                                     <></>
                                             }
@@ -173,6 +187,15 @@ function ListWidget({configuration}:ListWidgetProps) {
                 }
             </tbody>
         </Table>
+        <AdvancedModal show={editModalProps.show} action={"update/" + listWidgetData.resource + "/" + editModalProps.rowId} onClose={handleEditModalClose}/>
+        <ConfirmationModal show={deleteModalProps.show} title="Deletion" message={'Do you really want to delete this ' + listWidgetData.resource} onClose={handleDeleteModalClose} action={{
+            id: deleteModalProps.rowId ?? '',
+            method: "delete",
+            endpoint: listWidgetData.resource + "/" + deleteModalProps.rowId,
+            successMessage: listWidgetData.resource + ' deleted successfully!',
+            errorMessage: 'Error when deleting ' + listWidgetData.resource + '!',
+            eventType: "LIST_ITEM_DELETED"
+        }}/>
     </div>);
 
     function getValues(values: any[]) {
