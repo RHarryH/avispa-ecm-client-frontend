@@ -21,6 +21,8 @@ import ComboControl from "./ComboControl";
 import {FormControl, InputGroup} from "react-bootstrap";
 import RadioControl from "./RadioControl";
 import React from "react";
+import MaskedFormControl from "./MaskedFormControl";
+import {withMask} from "use-mask-input";
 
 interface PropertyControlComponentProps {
     control: PropertyControlProps;
@@ -82,7 +84,8 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             const money = control as Money;
             return (
                 <InputGroup>
-                    <FormControl type="text" id={id} name={name} defaultValue={value} required={money.required}/>
+                    <FormControl ref={withMask("", {"alias": "currency", "removeMaskOnSubmit": true})}
+                                 type="text" id={id} name={name} defaultValue={value} required={money.required}/>
                     <InputGroup.Text>{money.currency}</InputGroup.Text>
                 </InputGroup>
             );
@@ -103,7 +106,7 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
         case 'email':
             const text = control as Text;
             return (
-                <FormControl type={text.type} pattern={text.pattern} minLength={text.minLength}
+                <MaskedFormControl type={text.type} pattern={text.pattern} minLength={text.minLength}
                              maxLength={text.maxLength} id={id} name={name} defaultValue={value} required={text.required}/>
             );
         case 'textarea':
