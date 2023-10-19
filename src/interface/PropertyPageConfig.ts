@@ -42,7 +42,7 @@ export interface PropertyControlProps extends Control {
     label: string;
     property: string;
     value: any;
-    customValidation: CustomValidation;
+    customValidation?: CustomValidation;
     required: boolean;
 }
 
@@ -56,9 +56,9 @@ export interface Columns extends Control {
 }
 
 export interface ComboRadio extends PropertyControlProps {
-    typeName:string;
-    typeNameExpression: string;
-    dictionary: string;
+    typeName?: string;
+    typeNameExpression?: string;
+    dictionary?: string;
     sortByLabel: boolean;
     options: object;
 }

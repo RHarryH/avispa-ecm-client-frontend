@@ -17,6 +17,7 @@
  */
 
 import {AxiosResponse} from "axios";
+import {Columns, Control, Group, PropertyControlProps, TableProps, Tabs} from "../interface/PropertyPageConfig";
 
 export function processDownload(response: AxiosResponse) {
     const type = response.headers['content-type'];
@@ -43,4 +44,63 @@ function getFilenameFromHeader(response: AxiosResponse) {
     }
 
     return "download";
+}
+
+export interface FoundControl {
+    control: PropertyControlProps;
+    index?: number; // optional index in case of table content
+}
+
+export const getPropertyControl = (searchedProperty: string, controls: Control[]):FoundControl|undefined => {
+    let found = undefined;
+    for (const control of controls) {
+        if('value' in control) {
+            const propertyControl = control as PropertyControlProps;
+            if(propertyControl.property === searchedProperty) {
+                //console.log("Control " + searchedProperty + " found");
+                return {control: propertyControl};
+            }
+        } else if (control.type === 'group') {
+            const group = control as Group;
+            //console.log("Entering from group " + group.name);
+            found = getPropertyControl(searchedProperty, group.controls);
+        } else if (control.type === 'columns') {
+            //console.log("Entering from columns");
+            const columns = control as Columns;
+            found = getPropertyControl(searchedProperty, columns.controls);
+        } else if (control.type === 'tabs') {
+            //console.log("Entering from tabs");
+            const tabs = control as Tabs;
+            tabs.tabs.forEach(tab => {
+                found = getPropertyControl(searchedProperty, tab.controls);
+            });
+        } else if (control.type === 'table') {
+            //console.log("Entering from table");
+            const table = control as TableProps;
+            found = getPropertyInTable(searchedProperty, table);
+        }
+        if (found) {
+            return found;
+        }
+    }
+
+    return found;
+}
+
+function getPropertyInTable(searchedProperty:string, table:TableProps) {
+    const indexRegex = /\[(0|[1-9]\d*)]/i;
+    const match = indexRegex.exec(searchedProperty);
+    if(match?.index) {
+        const inTableProperty = searchedProperty.substring(match.index + match.length + 2);
+        const found = table.controls.find(control => control.property === inTableProperty)
+        const index = parseInt(match[1]);
+        if(found && found?.value.length > index) {
+            return {
+                control: found,
+                index: index
+            }
+        }
+    }
+
+    return undefined;
 }
