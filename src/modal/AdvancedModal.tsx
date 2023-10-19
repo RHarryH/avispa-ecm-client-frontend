@@ -24,6 +24,7 @@ import {EventType} from "../event/EventReducer";
 import {PropertyPageConfig} from "../interface/PropertyPageConfig";
 import PropertyPage from "../propertypage/PropertyPage";
 import Container from "react-bootstrap/Container";
+import {getPropertyControl} from "../misc/Misc";
 
 export type ModalType = "ADD" | "UPDATE" | "CLONE";
 
@@ -37,7 +38,16 @@ interface ActionProps {
     eventType?: EventType
 }
 
-interface ModalContext {
+/*interface ModalData {
+    type: ModalType
+    title: string
+    resource: string
+    action?: ActionProps
+    pages: ModalPage[]
+    propertyPage: PropertyPageConfig
+}*/
+
+interface ModalData {
     type: ModalType
     title: string
     resource: string
@@ -46,8 +56,8 @@ interface ModalContext {
 }
 
 interface ModalPage {
-    name: string
-    propertyPage: PropertyPageConfig;
+    name: string;
+    propertyPageConfig?: string;
 }
 
 interface AdvancedModalProps {
@@ -58,24 +68,20 @@ interface AdvancedModalProps {
 
 function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     const {publishEvent} = useEventContext();
-    const [modalContext, setModalContext] = useState<ModalContext>({
+    const [modalData, setModalData] = useState<ModalData>({
         title: "Default modal",
         type: "ADD",
         resource: "",
         pages: [
             {
-                name: "Unknown page",
-                propertyPage: {
-                    readonly: true,
-                    size: "small", // TODO: ?
-                    controls: [
-                        {
-                            type: "unknown"
-                        }
-                    ]
-                }
+                name: "Unknown page"
             }
         ]
+    });
+    const [propertyPage, setPropertyPage] = useState<PropertyPageConfig>({
+        readonly: false,
+        size: "small",
+        controls: []
     });
     const [pageNumber, setPageNumber] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
@@ -83,10 +89,11 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     useEffect(() => {
         if(show) {
             setIsLoading(true);
-            axios.get<ModalContext>('/modal/' + action)
+            axios.get('/modal/' + action)
                 .then(response => {
                     const modal = response.data;
-                    setModalContext(modal);
+                    setModalData(modal);
+                    setPropertyPage(modal.propertyPage);
                 })
                 .catch(error => {
                     console.log(error);
@@ -100,8 +107,8 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     const runAction = useCallback((event:React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
-        if (modalContext.action) {
-            const action = modalContext.action;
+        if (modalData.action) {
+            const action = modalData.action;
 
             const data = new FormData(event.currentTarget);
             axios(action.endpoint, {
@@ -110,13 +117,12 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 headers: { "Content-Type": "multipart/form-data" }
             })
             .then(() => {
-                console.log("Trigger: " + modalContext.resource)
                 publishEvent({
                     type: "ITEM_UPSERT",
                     payload: {
                         id: action.id,
-                        focus: modalContext.type === 'ADD',
-                        upsertedResource: modalContext.resource,
+                        focus: modalData.type === 'ADD',
+                        upsertedResource: modalData.resource,
                         notification: {
                             type: 'success',
                             message: action.successMessage
@@ -140,13 +146,33 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 onClose();
             })
         }
-    }, [modalContext]);
+    }, [modalData]);
+
+    function onChange(event: React.FormEvent<HTMLFormElement>) {
+        const target: any = event.target;
+        let propertyPageUpdated:PropertyPageConfig = {...propertyPage};
+
+        //console.log("Changed property: " + target.name + "=>" + target.value);
+
+        // update property in the property page
+        let foundControl = getPropertyControl(target.name, propertyPageUpdated.controls);
+        if(foundControl) {
+            if(foundControl.index !== undefined) {
+                //console.log(JSON.stringify(foundControl.control.value) + " " + Array.isArray(foundControl.control.value));
+                foundControl.control.value[foundControl.index] = target.value;
+            } else {
+                foundControl.control.value = target.value;
+            }
+        }
+
+        setPropertyPage(propertyPageUpdated);
+    }
 
     return (
         <>
             <Modal show={show} on onHide={() => { onClose(); setPageNumber(0);}} centered size="xl">
                 <Modal.Header closeButton>
-                    <Modal.Title>{modalContext.title}</Modal.Title>
+                    <Modal.Title>{modalData.title}</Modal.Title>
                 </Modal.Header>
                 <Container>
                     <Row>
@@ -161,11 +187,11 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                             </Col> :
                             <>
                                 {
-                                modalContext.pages.length > 1 ?
+                                modalData.pages.length > 1 ?
                                     <Col lg="auto" className="p-0 border-end">
                                         <ListGroup variant="flush">
                                             {
-                                                modalContext.pages.map((page, index) => (
+                                                modalData.pages.map((page, index) => (
                                                     <ListGroupItem active={pageNumber === index} aria-current={pageNumber === index}>{page.name}</ListGroupItem>
                                                 ))
                                             }
@@ -174,30 +200,30 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                     : null
                                 }
                                 <Col className="p-0">
-                                    <Form onSubmit={runAction}>
+                                    <Form onSubmit={runAction} onChange={event => onChange(event)}>
                                         <Modal.Body>
-                                                <PropertyPage propertyPage={modalContext.pages[pageNumber].propertyPage}></PropertyPage>
+                                                <PropertyPage propertyPage={propertyPage}></PropertyPage>
                                         </Modal.Body>
                                         <Modal.Footer>
                                             {
-                                                modalContext.pages.length > 1 && pageNumber > 0 ?
+                                                modalData.pages.length > 1 && pageNumber > 0 ?
                                                     <Button type="submit" variant="primary" className="bi bi-caret-left-fill"
                                                             onClick={() => setPageNumber(pageNumber - 1)}> Previous</Button> :
                                                     null
                                             }
                                             {
-                                                modalContext.type === 'ADD' ?
+                                                modalData.type === 'ADD' ?
                                                     <Button type="reset" variant="secondary">Reset</Button> :
                                                     null
                                             }
                                             <Button variant="danger" onClick={onClose}>Reject</Button>
                                             {
-                                                pageNumber === modalContext.pages.length - 1 ?
-                                                    <Button type="submit" variant="primary">{modalContext.action?.buttonValue ?? "Unknown action"}</Button>
+                                                pageNumber === modalData.pages.length - 1 ?
+                                                    <Button type="submit" variant="primary">{modalData.action?.buttonValue ?? "Unknown action"}</Button>
                                                     : null
                                             }
                                             {
-                                                modalContext.pages.length > 1 && (pageNumber < modalContext.pages.length - 1) ?
+                                                modalData.pages.length > 1 && (pageNumber < modalData.pages.length - 1) ?
                                                     <Button type="submit" variant="primary" className="bi bi-caret-right-fill"
                                                             onClick={() => setPageNumber(pageNumber + 1)}> Next</Button> :
                                                     null

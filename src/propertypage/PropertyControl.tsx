@@ -84,7 +84,7 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             const money = control as Money;
             return (
                 <InputGroup>
-                    <FormControl ref={withMask("", {"alias": "currency", "removeMaskOnSubmit": true})}
+                    <FormControl ref={withMask("", {"alias": "currency", "removeMaskOnSubmit": true, "greedy": true})}
                                  type="text" id={id} name={name} defaultValue={value} required={money.required}/>
                     <InputGroup.Text>{money.currency}</InputGroup.Text>
                 </InputGroup>
@@ -92,7 +92,7 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
         case 'number':
             const number = control as Number;
             return (
-                <FormControl type="number"  min={number.min} max={number.max} step={number.step}
+                <FormControl type="number" min={number.min} max={number.max} step={number.step}
                              id={id} name={name} defaultValue={value} required={number.required}/>
             );
         case 'radio':

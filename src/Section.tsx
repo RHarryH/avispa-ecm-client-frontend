@@ -59,9 +59,6 @@ function Section({location, widgets}:SectionProps){
             return;
         }
 
-        console.log(data.upsertedResource);
-        console.log(widgets.map(widget => [widget.type, widget.resource]));
-
         // focus on list widget
         const listWidget = widgets.find(widget => widget.type === WidgetType.LIST && widget.resource === data.upsertedResource);
         if(listWidget) {
