@@ -140,6 +140,8 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     }, [modalData]);
 
     function onChange(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
         const target = event.target as HTMLFormElement;
         let propertyPageUpdated:PropertyPageConfig = {...propertyPage};
 
@@ -165,7 +167,16 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         let foundControl = getPropertyControl(propertyName, propertyPageUpdated.controls);
         if(foundControl && foundControl.control.type === 'table') {
             const table = foundControl.control as TableProps;
-            table.controls.forEach(control => control.value.push(""));
+            table.controls.forEach(control => {
+                // set default values
+                if(control.type == 'number') {
+                    control.value.push("0")
+                } else if(control.type == 'money') {
+                    control.value.push("0,00")
+                } else {
+                    control.value.push("")
+                }
+            });
             table.size++;
             console.log(table);
         }

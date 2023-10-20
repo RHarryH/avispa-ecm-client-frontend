@@ -72,20 +72,44 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             const date = control as Date;
             return (
                 <FormControl type="date" min={date.min} max={date.max} step={date.step}
-                             id={id} name={name} defaultValue={value} value={value} required={date.required}/>
+                             id={id} name={name} defaultValue={value} required={date.required}/>
             );
         case 'datetime':
             const datetime = control as Date;
             return (
                 <FormControl type="datetime-local" min={datetime.min} max={datetime.max} step={datetime.step}
-                             id={id} name={name} defaultValue={value} value={value} required={datetime.required}/>
+                             id={id} name={name} defaultValue={value} required={datetime.required}/>
             );
         case 'money':
             const money = control as Money;
+            // /*"greedy": true*/
+            const currencyAlias = {
+                alias: "numeric",
+                numericInput: true,
+                min: 0,
+                max: 9999999.99,
+                groupSeparator: '\xa0', // non-breaking space
+                radixPoint: ',',
+                autoGroup: true,
+                autoUnmask: true,
+                digits: 2,
+                digitsOptional: false,
+                allowPlus: false,
+                allowMinus: false,
+                removeMaskOnSubmit: true,
+                greedy: true
+            };
             return (
                 <InputGroup>
-                    <FormControl ref={withMask("", {"alias": "currency", "removeMaskOnSubmit": true, "greedy": true})}
-                                 type="text" id={id} name={name} defaultValue={value} value={value} required={money.required}/>
+                    <FormControl ref={withMask("", currencyAlias)} onChange={(event) => {
+                        const caret = event.target.selectionStart
+                        const element = event.target
+                        window.requestAnimationFrame(() => {
+                            element.selectionStart = caret
+                            element.selectionEnd = caret
+                        })
+                    }}
+                                 type="text" id={id} name={name} defaultValue={value} required={money.required}/>
                     <InputGroup.Text>{money.currency}</InputGroup.Text>
                 </InputGroup>
             );
@@ -93,7 +117,7 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             const number = control as Number;
             return (
                 <FormControl type="number" min={number.min} max={number.max} step={number.step}
-                             id={id} name={name} defaultValue={value} value={value} required={number.required}/>
+                             id={id} name={name} defaultValue={value} required={number.required}/>
             );
         case 'radio':
             const radio = control as ComboRadio;
@@ -107,17 +131,17 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             const text = control as Text;
             return (
                 <MaskedFormControl type={text.type} pattern={text.pattern} minLength={text.minLength}
-                             maxLength={text.maxLength} id={id} name={name} defaultValue={value} value={value} required={text.required}/>
+                             maxLength={text.maxLength} id={id} name={name} defaultValue={value} required={text.required}/>
             );
         case 'textarea':
             const textarea = control as TextArea;
             return (
                 <FormControl as="textarea" rows={textarea.rows} cols={textarea.cols} minLength={textarea.minLength}
-                             maxLength={textarea.maxLength} id={id} name={name} defaultValue={value} value={value} required={textarea.required}/>
+                             maxLength={textarea.maxLength} id={id} name={name} defaultValue={value} required={textarea.required}/>
             );
         case 'hidden':
             return (
-                <FormControl type={control.type} id={id} name={name} defaultValue={value} value={value} required={control.required}/>
+                <FormControl type={control.type} id={id} name={name} defaultValue={value} required={control.required}/>
             );
         default:
             return <span>Unknown control of '{control.type}' type</span>;
