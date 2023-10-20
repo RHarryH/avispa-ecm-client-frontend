@@ -33,9 +33,11 @@ import TableControl from "./TableControl";
 
 interface PropertyPageProps {
     propertyPage: PropertyPageConfig;
+    onTableRowAdded?: (propertyName: string) => void;
+    onTableRowRemoved?: (propertyName: string, index: number) => void;
 }
 
-function PropertyPage({propertyPage}: PropertyPageProps) {
+function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: PropertyPageProps) {
     interface Comparators {
         "$eq": (a: any, b: any) => boolean;
         "$ne": (a: any, b: any) => boolean;
@@ -65,7 +67,7 @@ function PropertyPage({propertyPage}: PropertyPageProps) {
 
         function resolveCondition(property: any, expectedValue: any) {
             const valueString = JSON.stringify(expectedValue);
-            console.log(`Condition: ${property} => ${valueString}`);
+            //console.log(`Condition: ${property} => ${valueString}`);
 
             // extract values from the form
             // for radios and combos when the value is UUID, the label is used, otherwise regular value is used
@@ -184,7 +186,7 @@ function PropertyPage({propertyPage}: PropertyPageProps) {
                 );
             case 'table':
                 const table = control as TableProps;
-                return <TableControl table={table} readonly={propertyPage.readonly}/>;
+                return <TableControl table={table} readonly={propertyPage.readonly} onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
             default:
                 return (
                     <Row as={control.type === 'radio' ? 'fieldset' : 'div'} className={notLast && controlsNum === 1 ? 'mb-3' : ''}> {/* avoid doubling of bottom margin for columns */}

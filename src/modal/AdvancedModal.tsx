@@ -21,7 +21,7 @@ import {Button, Col, Form, ListGroup, ListGroupItem, Modal, Row, Spinner} from "
 import axios, {Method} from "axios";
 import {useEventContext} from "../event/EventContext";
 import {EventType} from "../event/EventReducer";
-import {PropertyPageConfig} from "../interface/PropertyPageConfig";
+import {PropertyPageConfig, TableProps} from "../interface/PropertyPageConfig";
 import PropertyPage from "../propertypage/PropertyPage";
 import Container from "react-bootstrap/Container";
 import {getPropertyControl} from "../misc/Misc";
@@ -37,15 +37,6 @@ interface ActionProps {
     buttonValue: string
     eventType?: EventType
 }
-
-/*interface ModalData {
-    type: ModalType
-    title: string
-    resource: string
-    action?: ActionProps
-    pages: ModalPage[]
-    propertyPage: PropertyPageConfig
-}*/
 
 interface ModalData {
     type: ModalType
@@ -149,7 +140,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     }, [modalData]);
 
     function onChange(event: React.FormEvent<HTMLFormElement>) {
-        const target: any = event.target;
+        const target = event.target as HTMLFormElement;
         let propertyPageUpdated:PropertyPageConfig = {...propertyPage};
 
         //console.log("Changed property: " + target.name + "=>" + target.value);
@@ -163,6 +154,33 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
             } else {
                 foundControl.control.value = target.value;
             }
+        }
+
+        setPropertyPage(propertyPageUpdated);
+    }
+
+    function onTableRowAdded(propertyName: string) {
+        let propertyPageUpdated:PropertyPageConfig = {...propertyPage};
+
+        let foundControl = getPropertyControl(propertyName, propertyPageUpdated.controls);
+        if(foundControl && foundControl.control.type === 'table') {
+            const table = foundControl.control as TableProps;
+            table.controls.forEach(control => control.value.push(""));
+            table.size++;
+            console.log(table);
+        }
+
+        setPropertyPage(propertyPageUpdated);
+    }
+
+    function onTableRowRemoved(propertyName: string, index: number) {
+        let propertyPageUpdated:PropertyPageConfig = {...propertyPage};
+
+        let foundControl = getPropertyControl(propertyName, propertyPageUpdated.controls);
+        if(foundControl && foundControl.control.type === 'table') {
+            const table = foundControl.control as TableProps;
+            table.controls.forEach(control => control.value.splice(index, 1));
+            table.size--;
         }
 
         setPropertyPage(propertyPageUpdated);
@@ -200,9 +218,11 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                     : null
                                 }
                                 <Col className="p-0">
-                                    <Form onSubmit={runAction} onChange={event => onChange(event)}>
+                                    <Form onSubmit={runAction} onChange={onChange}>
                                         <Modal.Body>
-                                                <PropertyPage propertyPage={propertyPage}></PropertyPage>
+                                                <PropertyPage propertyPage={propertyPage}
+                                                              onTableRowAdded={onTableRowAdded}
+                                                              onTableRowRemoved={onTableRowRemoved}></PropertyPage>
                                         </Modal.Body>
                                         <Modal.Footer>
                                             {

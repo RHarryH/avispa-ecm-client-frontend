@@ -24,9 +24,11 @@ import PropertyControl from "./PropertyControl";
 interface TableControlComponentProps {
     table: TableProps;
     readonly: boolean;
+    onRowAdded?: (propertyName: string) => void;
+    onRowRemoved?: (propertyName: string, index: number) => void;
 }
 
-function TableControl({table, readonly}: TableControlComponentProps) {
+function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlComponentProps) {
     function getTableControls(table: TableProps, readonly: boolean) {
         let array = [];
         for(let i = 0; i < table.size; i++) {
@@ -45,7 +47,7 @@ function TableControl({table, readonly}: TableControlComponentProps) {
                     {
                         !readonly && i !== 0 ? (
                             <td>
-                                <Button variant="" className={"bi bi-trash-fill align-middle " + table.property + "-table-delete-button"} value={i}></Button>
+                                <Button variant="" className={"bi bi-trash-fill align-middle"} onClick={() => onRowRemoved ? onRowRemoved(table.property, i) : null}></Button>
                             </td>
                         ) : null
                     }
@@ -77,7 +79,8 @@ function TableControl({table, readonly}: TableControlComponentProps) {
         </Table>
         {
             !readonly ?
-                <Button id={table.property + "-table-add-button"} size="sm" variant="outline-dark" className="bi bi-plus-lg">Add new</Button> :
+                <Button size="sm" variant="outline-dark" className="bi bi-plus-lg"
+                        onClick={() => onRowAdded ? onRowAdded(table.property) : null}>Add new</Button> :
                 null
         }
     </>
