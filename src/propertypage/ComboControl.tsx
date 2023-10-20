@@ -39,7 +39,7 @@ function ComboControl({combo, property}: ComboProps) {
     const dictionaryHas = dictionaryMap.has(currentKey);
 
     return (
-        <FormSelect id={property.id} name={property.name} defaultValue={currentKey} required={combo.required}>
+        <FormSelect id={property.id} name={property.name} defaultValue={currentKey} value={currentKey} required={combo.required}>
             {
                 currentKey && !dictionaryHas ?
                     (<option value="" selected disabled hidden>DEPRECATED</option>) :
