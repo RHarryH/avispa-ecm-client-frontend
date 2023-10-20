@@ -30,6 +30,7 @@ import {Col, FormLabel, Row} from "react-bootstrap";
 import React from "react";
 import PropertyControl from "./PropertyControl";
 import TableControl from "./TableControl";
+import {getPropertyControl} from "../misc/Misc";
 
 interface PropertyPageProps {
     propertyPage: PropertyPageConfig;
@@ -66,8 +67,8 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
         });
 
         function resolveCondition(property: any, expectedValue: any) {
-            const valueString = JSON.stringify(expectedValue);
-            //console.log(`Condition: ${property} => ${valueString}`);
+            /*const valueString = JSON.stringify(expectedValue);
+            console.log(`Condition: ${property} => ${valueString}`);*/
 
             // extract values from the form
             // for radios and combos when the value is UUID, the label is used, otherwise regular value is used
@@ -78,25 +79,26 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                 }
 
                 // get element matching the key
-                const element = propertyPage.controls
-                    .filter(control => 'property' in control)
-                    .map(control => control as PropertyControlProps)
-                    .find(propertyControl => propertyControl.property === fullKey);
+                const element = getPropertyControl(fullKey, propertyPage.controls)?.control;
 
                 // if this is combo or radio, extract correct option
-                if(element && 'options' in element) {
-                    const comboradio = element as ComboRadio;
-                    if(comboradio.options) {
-                        const options = Object.entries(comboradio.options);
-                        const matchingOption = options.find(option => option[0] === comboradio.value);
-                        if(matchingOption) {
-                            return isUUID(matchingOption[0]) ? matchingOption[1] : matchingOption[0];
-                        } else if(options.length > 0) {
-                            const firstOption = options[0];
-                            return isUUID(firstOption[0]) ? firstOption[1] : firstOption[0];
-                        } else {
-                            return "";
+                if(element) {
+                    if('options' in element) {
+                        const comboradio = element as ComboRadio;
+                        if (comboradio.options) {
+                            const options = Object.entries(comboradio.options);
+                            const matchingOption = options.find(option => option[0] === comboradio.value);
+                            if (matchingOption) {
+                                return isUUID(matchingOption[0]) ? matchingOption[1] : matchingOption[0];
+                            } else if (options.length > 0) {
+                                const firstOption = options[0];
+                                return isUUID(firstOption[0]) ? firstOption[1] : firstOption[0];
+                            } else {
+                                return "";
+                            }
                         }
+                    } else if(element.type === 'money') {
+                        return element?.value.replace(",", ".")
                     }
                 }
 
@@ -135,7 +137,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
 
                 const test = comparators[operator as keyof Comparators](actualValue, comparedValue);
 
-                //console.log("Test: " + property + "(" + actualValue + ") " + operator + " " + comparedValue + " = " + test);
+                console.log("Test: " + property + "(" + actualValue + ") " + operator + " " + comparedValue + " = " + test);
                 return test;
             }
         }
@@ -148,10 +150,9 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
     }
 
     function getControl(control: Control, notLast: boolean, controlsNum: number = 1) {
-        if(control.conditions?.visibility) {
-            if(!resolveConditions(control.conditions.visibility)) {
-                return;
-            }
+        let visible = '';
+        if(control.conditions?.visibility && !resolveConditions(control.conditions.visibility)) {
+            visible = 'd-none';
         }
 
         switch (control.type) {
@@ -160,21 +161,19 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                 return (<h3 className="col-sm-12">{label.expression}</h3>);
             case 'separator':
                 return (<hr/>);
-            case 'columns':
+            case 'columns': {
                 const column = control as Columns;
                 return (
-                    <Row className={notLast ? 'mb-3' : ''}>
-                        {
-                            column.controls.map((columnControl, index) => (
-                                <Col>{getControl(columnControl, index < column.controls.length, column.controls.length)}</Col>
-                            ))
-                        }
+                    <Row>
+                        {getColumn(column)}
                     </Row>
                 );
-            case 'group':
+            }
+            case 'group': {
                 const group = control as Group;
+                const margin = notLast ? 'mb-3' : '';
                 return (
-                    <fieldset className={'border row mx-0 pb-3' + (notLast ? ' mb-3' : '')}>
+                    <fieldset className={`border row mx-0  ${margin} ${visible}`}>
                         <legend style={{
                             float: "initial",
                             width: "initial"
@@ -184,12 +183,15 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                         </Col>
                     </fieldset>
                 );
+            }
             case 'table':
                 const table = control as TableProps;
-                return <TableControl table={table} readonly={propertyPage.readonly} onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
-            default:
+                return <TableControl visible={visible} table={table} readonly={propertyPage.readonly} onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
+            default: {
+                const margin = notLast ? 'mb-3' : '';
                 return (
-                    <Row as={control.type === 'radio' ? 'fieldset' : 'div'} className={notLast && controlsNum === 1 ? 'mb-3' : ''}> {/* avoid doubling of bottom margin for columns */}
+                    <Row as={control.type === 'radio' ? 'fieldset' : 'div'}
+                         className={`${margin} ${visible}`}>
                         {
                             isPropertyControl(control) ?
                                 getPropertyControlWithLabel(control, controlsNum) :
@@ -197,14 +199,26 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                         }
                     </Row>
                 );
+            }
         }
+    }
+
+    function getColumn(column: Columns) {
+        return column.controls.map((columnControl, index) => (
+                getColumnControl(columnControl, index < column.controls.length, column.controls.length)
+            )
+        )
+    }
+
+    function getColumnControl(control: Control, notLast: boolean, controlsNum: number = 1) {
+        return <Col>{getControl(control, notLast, controlsNum)}</Col>;
     }
 
     function isPropertyControl(control: Control): control is PropertyControlProps {
         return 'property' in control;
     }
 
-    function getPropertyControlWithLabel(control: PropertyControlProps, controlsNum:number) {
+    function getPropertyControlWithLabel(control: PropertyControlProps, controlsNum: number) {
         if(control.conditions?.requirement) {
             control.required = resolveConditions(control.conditions.requirement);
         }
@@ -213,7 +227,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
             {
                 control.type !== 'radio' ?
                     getPropertyLabel(control, controlsNum) :
-                    <legend className={"form-label col-form-label pt-0 col-sm-" + (2*controlsNum)}>{control.label + (control.required ? '*' : '')}</legend>
+                    <legend className={"form-label col-form-label pt-0 col-sm-" + (2 * controlsNum)}>{control.label + (control.required ? '*' : '')}</legend>
             }
             <Col>
                 <PropertyControl control={control}/>
@@ -221,7 +235,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
         </>;
     }
 
-    function getPropertyLabel(control: PropertyControlProps, controlsNum:number = 1) {
+    function getPropertyLabel(control: PropertyControlProps, controlsNum: number = 1) {
         return (
             <FormLabel column sm={2 * controlsNum}
                        htmlFor={control.property}>

@@ -26,9 +26,10 @@ interface TableControlComponentProps {
     readonly: boolean;
     onRowAdded?: (propertyName: string) => void;
     onRowRemoved?: (propertyName: string, index: number) => void;
+    visible: string;
 }
 
-function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlComponentProps) {
+function TableControl({table, readonly, onRowAdded, onRowRemoved, visible}: TableControlComponentProps) {
     function getTableControls(table: TableProps, readonly: boolean) {
         let array = [];
         for(let i = 0; i < table.size; i++) {
@@ -44,13 +45,13 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlC
                             </td>
                         ))
                     }
-                    {
-                        !readonly && i !== 0 ? (
-                            <td>
-                                <Button variant="" className={"bi bi-trash-fill align-middle"} onClick={() => onRowRemoved ? onRowRemoved(table.property, i) : null}></Button>
-                            </td>
-                        ) : null
-                    }
+                    <td>
+                        {
+                            !readonly && i !== 0 ?
+                                <Button variant="" className={"bi bi-trash-fill align-middle"} onClick={() => onRowRemoved ? onRowRemoved(table.property, i) : null}></Button> :
+                                null
+                        }
+                    </td>
                 </tr>
             );
         }
@@ -59,7 +60,7 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlC
     }
 
     return (
-    <>
+    <div className={`mb-3 ${visible}`}>
         <Table size="sm" className="caption-top">
             <caption className="text-black">{table.label + (table.required ? '*' : '')}</caption>
             <thead className="table-light">
@@ -83,7 +84,7 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlC
                         onClick={() => onRowAdded ? onRowAdded(table.property) : null}>Add new</Button> :
                 null
         }
-    </>
+    </div>
     );
 }
 

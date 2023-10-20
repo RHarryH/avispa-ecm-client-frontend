@@ -176,7 +176,7 @@ function ListWidget({configuration}:ListWidgetProps) {
                                             {
                                                 Object.keys(row.values).filter(key => key === "pdfRenditionAvailable").length ?
                                                     <OverlayTrigger placement="bottom" overlay={tooltip("Download PDF rendition")}>
-                                                        <Button variant="" value={row.id} className="bi bi-file-earmark-arrow-down-fill" onClick={e => getRendition(row.id)}/>
+                                                        <Button variant="" value={row.id} className="bi bi-file-earmark-arrow-down-fill" onClick={() => getRendition(row.id)}/>
                                                     </OverlayTrigger> :
                                                     <></>
                                             }

@@ -100,7 +100,7 @@ function getPropertyInTable(searchedProperty:string, table:TableProps) {
                 index: index
             }
         }
-    } else { // if there is not access to table field found, return table itself
+    } else { // if there is no access to table field found, return table itself
         return {
             control: table
         };
