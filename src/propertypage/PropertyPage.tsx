@@ -137,7 +137,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
 
                 const test = comparators[operator as keyof Comparators](actualValue, comparedValue);
 
-                console.log("Test: " + property + "(" + actualValue + ") " + operator + " " + comparedValue + " = " + test);
+                //console.log("Test: " + property + "(" + actualValue + ") " + operator + " " + comparedValue + " = " + test);
                 return test;
             }
         }

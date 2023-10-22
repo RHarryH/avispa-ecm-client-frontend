@@ -17,7 +17,18 @@
  */
 
 import React, {useCallback, useEffect, useState} from "react";
-import {Button, Col, Form, ListGroup, ListGroupItem, Modal, Row, Spinner} from "react-bootstrap";
+import {
+    Button,
+    Col,
+    Form,
+    ListGroup,
+    ListGroupItem,
+    Modal,
+    OverlayTrigger,
+    Row,
+    Spinner,
+    Tooltip
+} from "react-bootstrap";
 import axios, {Method} from "axios";
 import {useEventContext} from "../event/EventContext";
 import {EventType} from "../event/EventReducer";
@@ -74,6 +85,8 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         size: "small",
         controls: []
     });
+    const [initPropertyPage, setInitPropertyPage] = useState<PropertyPageConfig|undefined>(undefined);
+
     const [pageNumber, setPageNumber] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -84,7 +97,9 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 .then(response => {
                     const modal = response.data;
                     setModalData(modal);
+
                     setPropertyPage(modal.propertyPage);
+                    setInitPropertyPage(structuredClone(modal.propertyPage));
                 })
                 .catch(error => {
                     console.log(error);
@@ -94,6 +109,10 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 });
         }
     }, [show]);
+
+    const reset = useCallback(() => {
+        setPropertyPage(structuredClone(initPropertyPage));
+    }, [initPropertyPage]);
 
     const runAction = useCallback((event:React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
@@ -197,6 +216,12 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         setPropertyPage(propertyPageUpdated);
     }
 
+    const tooltip = (message:string) => (
+        <Tooltip id="tooltip">
+            {message}
+        </Tooltip>
+    );
+
     return (
         <>
             <Modal show={show} on onHide={() => { onClose(); setPageNumber(0);}} centered size="xl">
@@ -242,11 +267,9 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                                             onClick={() => setPageNumber(pageNumber - 1)}> Previous</Button> :
                                                     null
                                             }
-                                            {
-                                                modalData.type === 'ADD' ?
-                                                    <Button type="reset" variant="secondary">Reset</Button> :
-                                                    null
-                                            }
+                                            <OverlayTrigger placement="bottom" overlay={tooltip('Resets the content of this page')}>
+                                                <Button type="reset" variant="secondary" onClick={reset}>Reset</Button>
+                                            </OverlayTrigger>
                                             <Button variant="danger" onClick={onClose}>Reject</Button>
                                             {
                                                 pageNumber === modalData.pages.length - 1 ?
