@@ -49,35 +49,43 @@ function getFilenameFromHeader(response: AxiosResponse) {
 export interface FoundControl {
     control: PropertyControlProps;
     index?: number; // optional index in case of table content
+    valueJsonPath: string;
 }
 
-export const getPropertyControl = (searchedProperty: string, controls: Control[]):FoundControl|undefined => {
+export function getPropertyControl(searchedProperty: string, controls: Control[]): FoundControl|undefined {
+    return getPropertyControlInternal(searchedProperty, controls, "$");
+}
+
+function getPropertyControlInternal(searchedProperty: string, controls: Control[], jsonPath: string) : FoundControl|undefined {
     let found = undefined;
-    for (const control of controls) {
+    for (const [index, control] of controls.entries()) {
         if('value' in control) {
             const propertyControl = control as PropertyControlProps;
             if(propertyControl.property === searchedProperty) {
                 //console.log("Control " + searchedProperty + " found");
-                return {control: propertyControl};
+                return {
+                    control: propertyControl,
+                    valueJsonPath: jsonPath + '.controls[' + index + '].value'
+                };
             }
         } else if (control.type === 'group') {
             const group = control as Group;
             //console.log("Entering from group " + group.name);
-            found = getPropertyControl(searchedProperty, group.controls);
+            found = getPropertyControlInternal(searchedProperty, group.controls, jsonPath + '.controls[' + index + ']');
         } else if (control.type === 'columns') {
             //console.log("Entering from columns");
             const columns = control as Columns;
-            found = getPropertyControl(searchedProperty, columns.controls);
+            found = getPropertyControlInternal(searchedProperty, columns.controls, jsonPath + '.controls[' + index + ']');
         } else if (control.type === 'tabs') {
             //console.log("Entering from tabs");
             const tabs = control as Tabs;
-            tabs.tabs.forEach(tab => {
-                found = getPropertyControl(searchedProperty, tab.controls);
+            tabs.tabs.forEach((tab, tabIndex) => {
+                found = getPropertyControlInternal(searchedProperty, tab.controls, jsonPath + '.controls[' + index + '].tab[' + tabIndex + ']');
             });
         } else if (control.type === 'table') {
             //console.log("Entering from table");
             const table = control as TableProps;
-            found = getPropertyInTable(searchedProperty, table);
+            found = getPropertyInTable(searchedProperty, table, jsonPath +'.controls[' + index + ']');
         }
         if (found) {
             return found;
@@ -87,7 +95,7 @@ export const getPropertyControl = (searchedProperty: string, controls: Control[]
     return found;
 }
 
-function getPropertyInTable(searchedProperty:string, table:TableProps) {
+function getPropertyInTable(searchedProperty:string, table:TableProps, jsonPath: string): FoundControl|undefined {
     const indexRegex = /\[(0|[1-9]\d*)]/i;
     const match = indexRegex.exec(searchedProperty);
     if(match?.index) {
@@ -97,12 +105,14 @@ function getPropertyInTable(searchedProperty:string, table:TableProps) {
         if(found && found?.value.length > index) {
             return {
                 control: found,
-                index: index
+                index: index,
+                valueJsonPath: jsonPath + '.value[' + index + ']'
             }
         }
-    } else { // if there is no access to table field found, return table itself
+    } else if(table.property === searchedProperty) { // if there is no access to table field found, return table itself
         return {
-            control: table
+            control: table,
+            valueJsonPath: jsonPath
         };
     }
 }
