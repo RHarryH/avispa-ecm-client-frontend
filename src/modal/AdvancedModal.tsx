@@ -162,22 +162,20 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         event.preventDefault();
 
         const target = event.target as HTMLFormElement;
-        let propertyPageUpdated:PropertyPageConfig = {...propertyPage};
-
-        //console.log("Changed property: " + target.name + "=>" + target.value);
 
         // update property in the property page
+        let propertyPageUpdated:PropertyPageConfig = {...propertyPage};
         let foundControl = getPropertyControl(target.name, propertyPageUpdated.controls);
         if(foundControl) {
             if(foundControl.index !== undefined) {
-                //console.log(JSON.stringify(foundControl.control.value) + " " + Array.isArray(foundControl.control.value));
                 foundControl.control.value[foundControl.index] = target.value;
             } else {
                 foundControl.control.value = target.value;
             }
-        }
 
-        setPropertyPage(propertyPageUpdated);
+            //console.log("Changed property: " + target.name + "=>" + target.value);
+            setPropertyPage(propertyPageUpdated);
+        }
     }
 
     function onTableRowAdded(propertyName: string) {
@@ -197,10 +195,9 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 }
             });
             table.size++;
-            console.log(table);
-        }
 
-        setPropertyPage(propertyPageUpdated);
+            setPropertyPage(propertyPageUpdated);
+        }
     }
 
     function onTableRowRemoved(propertyName: string, index: number) {
@@ -211,9 +208,9 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
             const table = foundControl.control as TableProps;
             table.controls.forEach(control => control.value.splice(index, 1));
             table.size--;
-        }
 
-        setPropertyPage(propertyPageUpdated);
+            setPropertyPage(propertyPageUpdated);
+        }
     }
 
     const tooltip = (message:string) => (
