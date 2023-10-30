@@ -17,7 +17,7 @@
  */
 
 import {AxiosResponse} from "axios";
-import {Columns, Control, Group, PropertyControlProps, TableProps, Tabs} from "../interface/PropertyPageConfig";
+import {Columns, Control, Group, PropertyControlProps, TableProps, TabsProps} from "../interface/PropertyPageConfig";
 
 export function processDownload(response: AxiosResponse) {
     const type = response.headers['content-type'];
@@ -78,7 +78,7 @@ function getPropertyControlInternal(searchedProperty: string, controls: Control[
             found = getPropertyControlInternal(searchedProperty, columns.controls, jsonPath + '.controls[' + index + ']');
         } else if (control.type === 'tabs') {
             //console.log("Entering from tabs");
-            const tabs = control as Tabs;
+            const tabs = control as TabsProps;
             tabs.tabs.forEach((tab, tabIndex) => {
                 found = getPropertyControlInternal(searchedProperty, tab.controls, jsonPath + '.controls[' + index + '].tab[' + tabIndex + ']');
             });
@@ -116,3 +116,9 @@ function getPropertyInTable(searchedProperty:string, table:TableProps, jsonPath:
         };
     }
 }
+
+export const toKebabCase = (str: string) =>
+    str
+        .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
+        ?.map((x) => x.toLowerCase())
+        .join("-");

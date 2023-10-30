@@ -99,9 +99,14 @@ export interface TableProps extends PropertyControlProps {
     size: number;
 }
 
-export interface Tabs extends Control {
+export interface TabsProps extends Control {
     label: string;
-    tabs: Tab[];
+    tabs: TabProps[];
+}
+
+interface TabProps {
+    name: string;
+    controls: Control[];
 }
 
 export interface TextArea extends PropertyControlProps {
@@ -109,9 +114,4 @@ export interface TextArea extends PropertyControlProps {
     cols: number;
     minLength: number;
     maxLength: number;
-}
-
-interface Tab {
-    name: string;
-    controls: Control[];
 }
