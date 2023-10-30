@@ -24,13 +24,14 @@ import {
     Label,
     PropertyControlProps,
     PropertyPageConfig,
-    TableProps
+    TableProps,
+    TabsProps
 } from "../interface/PropertyPageConfig";
-import {Col, FormLabel, Row} from "react-bootstrap";
+import {Col, FormLabel, Row, Tab, Tabs} from "react-bootstrap";
 import React from "react";
 import PropertyControl from "./PropertyControl";
 import TableControl from "./TableControl";
-import {getPropertyControl} from "../misc/Misc";
+import {getPropertyControl, toKebabCase} from "../misc/Misc";
 
 interface PropertyPageProps {
     propertyPage: PropertyPageConfig;
@@ -187,6 +188,25 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
             case 'table':
                 const table = control as TableProps;
                 return <TableControl visible={visible} table={table} readonly={propertyPage.readonly} onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
+            case 'tabs': {
+                const tabs = control as TabsProps;
+                const margin = notLast ? 'mb-3' : '';
+                return (
+                    <div className={`${margin} ${visible}`}>
+                        <Tabs defaultActiveKey={toKebabCase(tabs.tabs[0].name)}>
+                            {
+                                tabs.tabs.map(tab => (
+                                    <Tab eventKey={toKebabCase(tab.name)}
+                                         className="rounded-bottom border-bottom border-start border-end p-3"
+                                         title={tab.name}>
+                                        {getControls(tab.controls)}
+                                    </Tab>
+                                ))
+                            }
+                        </Tabs>
+                    </div>
+                );
+            }
             default: {
                 const margin = notLast ? 'mb-3' : '';
                 return (
