@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, {useCallback, useEffect, useState} from "react";
+import React, {ElementRef, useCallback, useEffect, useRef, useState} from "react";
 import {
     Button,
     Col,
@@ -38,6 +38,7 @@ import Container from "react-bootstrap/Container";
 import {getPropertyControl} from "../misc/Misc";
 
 export type ModalType = "ADD" | "UPDATE" | "CLONE";
+type ModalPageType = "SELECT_SOURCE" | "PROPERTIES";
 
 interface ActionProps {
     id?: string,
@@ -58,25 +59,33 @@ interface ModalData {
 }
 
 interface ModalPage {
-    name: string;
-    propertyPageConfig?: string;
+    name: string
+    pageType: ModalPageType
 }
 
 interface AdvancedModalProps {
-    show: boolean,
-    action: string,
+    show: boolean
+    action: string
     onClose: any
+}
+
+interface ModalContext {
+    pageType: ModalPageType
+    contextInfo: any
 }
 
 function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     const {publishEvent} = useEventContext();
+    const formRef = useRef<ElementRef<"form">>(null);
+
     const [modalData, setModalData] = useState<ModalData>({
         title: "Default modal",
         type: "ADD",
         resource: "",
         pages: [
             {
-                name: "Unknown page"
+                name: "Unknown page",
+                pageType: "PROPERTIES"
             }
         ]
     });
@@ -87,6 +96,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     });
     const [initPropertyPage, setInitPropertyPage] = useState<PropertyPageConfig|undefined>(undefined);
 
+    const [modalContext, setModalContext] = useState<FormData[]>([]);
     const [pageNumber, setPageNumber] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
 
@@ -110,6 +120,12 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         }
     }, [show]);
 
+    const close = useCallback(() => {
+        setModalContext([]);
+        setPageNumber(0);
+        onClose();
+    }, [show]);
+
     const reset = useCallback(() => {
         setPropertyPage(structuredClone(initPropertyPage));
     }, [initPropertyPage]);
@@ -124,14 +140,14 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
             axios(action.endpoint, {
                 method: action.method,
                 data: data,
-                headers: { "Content-Type": "multipart/form-data" }
+                headers: { "Content-Type": "application/json" }
             })
             .then(() => {
                 publishEvent({
                     type: "ITEM_UPSERT",
                     payload: {
                         id: action.id,
-                        focus: modalData.type === 'ADD',
+                        focus: modalData.type === 'ADD' /*|| modalData.type === 'CLONE'*/,
                         upsertedResource: modalData.resource,
                         notification: {
                             type: 'success',
@@ -153,10 +169,65 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                  })
             })
             .finally(() => {
-                onClose();
+                close();
             })
         }
     }, [modalData]);
+
+    const loadPage = useCallback((newPageNumber: number) => {
+        if(show && formRef.current && (pageNumber > 0 || pageNumber < modalData.pages.length)) {
+            setIsLoading(true);
+
+            const url = '/modal/page/' + modalData.resource;
+            const targetPageType = modalData.pages[newPageNumber].pageType;
+
+            let responsePromise;
+            if(newPageNumber > pageNumber) {
+                // does not allow to go forward if the form data is invalid
+                if(!formRef.current.checkValidity()) {
+                    setIsLoading(false);
+                    formRef.current.reportValidity();
+                    return;
+                }
+
+                const context = new FormData(formRef.current);
+                const contextWrapper = new FormData();
+
+                // wrap form data into modal context
+                context.forEach((value, key) => contextWrapper.set("contextInfo." + key, value));
+                contextWrapper.set("sourcePageType", modalData.pages[pageNumber].pageType);
+                contextWrapper.set("targetPageType", targetPageType);
+
+                // update contexts array
+                const newModalContext = structuredClone(modalContext);
+                newModalContext.push(contextWrapper);
+                setModalContext(newModalContext);
+
+                responsePromise = axios.post(url, contextWrapper, {headers: { "Content-Type": "application/json" }});
+            } else {
+                // update contexts array by removing last context
+                const newModalContext = structuredClone(modalContext.slice(0, -1));
+                setModalContext(newModalContext);
+
+                // does not send context backwards
+                responsePromise = axios.post(url, {targetPageType: targetPageType});
+            }
+
+            responsePromise.then(response => {
+                const propertyPage = response.data;
+
+                setPropertyPage(propertyPage);
+                setInitPropertyPage(structuredClone(propertyPage));
+                setPageNumber(newPageNumber);
+            })
+            .catch(error => {
+                console.log(error);
+            })
+            .finally(() => {
+                setIsLoading(false);
+            });
+        }
+    }, [propertyPage, modalData, show, pageNumber]);
 
     function onChange(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -221,7 +292,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
 
     return (
         <>
-            <Modal show={show} on onHide={() => { onClose(); setPageNumber(0);}} centered size="xl">
+            <Modal show={show} on onHide={close} centered size="xl">
                 <Modal.Header closeButton>
                     <Modal.Title>{modalData.title}</Modal.Title>
                 </Modal.Header>
@@ -251,7 +322,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                     : null
                                 }
                                 <Col className="p-0">
-                                    <Form onSubmit={runAction} onChange={onChange}>
+                                    <Form ref={formRef} onSubmit={runAction} onChange={onChange}>
                                         <Modal.Body>
                                                 <PropertyPage propertyPage={propertyPage}
                                                               onTableRowAdded={onTableRowAdded}
@@ -260,8 +331,8 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                         <Modal.Footer>
                                             {
                                                 modalData.pages.length > 1 && pageNumber > 0 ?
-                                                    <Button type="submit" variant="primary" className="bi bi-caret-left-fill"
-                                                            onClick={() => setPageNumber(pageNumber - 1)}> Previous</Button> :
+                                                    <Button variant="primary" className="bi bi-caret-left-fill"
+                                                            onClick={() => loadPage(pageNumber - 1)}> Previous</Button> :
                                                     null
                                             }
                                             <OverlayTrigger placement="bottom" overlay={tooltip('Resets the content of this page')}>
@@ -275,8 +346,8 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                             }
                                             {
                                                 modalData.pages.length > 1 && (pageNumber < modalData.pages.length - 1) ?
-                                                    <Button type="submit" variant="primary" className="bi bi-caret-right-fill"
-                                                            onClick={() => setPageNumber(pageNumber + 1)}> Next</Button> :
+                                                    <Button variant="primary" className="bi bi-caret-right-fill"
+                                                            onClick={() => loadPage(pageNumber + 1)}> Next</Button> :
                                                     null
                                             }
                                         </Modal.Footer>
