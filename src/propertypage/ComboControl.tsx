@@ -18,13 +18,15 @@
 
 import {FormSelect} from "react-bootstrap";
 import {ComboRadio, HTMLProperty} from "../interface/PropertyPageConfig";
+import {ChangeEventHandler} from "react";
 
 interface ComboProps {
     combo: ComboRadio;
     property: HTMLProperty;
+    onChange: ChangeEventHandler<HTMLSelectElement>;
 }
 
-function ComboControl({combo, property}: ComboProps) {
+function ComboControl({combo, property, onChange}: ComboProps) {
     function getComboOptions(values: Map<string, string>) {
         const array = [];
         for (let [key, value] of values) {
@@ -39,7 +41,8 @@ function ComboControl({combo, property}: ComboProps) {
     const dictionaryHas = dictionaryMap.has(currentKey);
 
     return (
-        <FormSelect id={property.id} name={property.name} defaultValue={currentKey} required={combo.required}>
+        <FormSelect id={property.id} name={property.name} defaultValue={currentKey} required={combo.required}
+                    onChange={onChange}>
             {
                 currentKey && !dictionaryHas ?
                     (<option value="" selected disabled hidden>DEPRECATED</option>) :

@@ -76,6 +76,8 @@ function App() {
                 <meta charSet="utf-8" />
                 <title>{appData.fullName}</title>
                 <meta name="description" content="Avispa μF - an application for generating simple invoices" />
+                <script src="http://localhost:8081/custom/ecm-custom-validation.js" type="text/javascript"/>
+                {/* TODO: localhost */}
             </Helmet>
 
             <header>

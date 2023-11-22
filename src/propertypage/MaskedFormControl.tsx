@@ -17,10 +17,23 @@
  */
 
 import React from "react";
-import {FormControl} from "react-bootstrap";
+import {FormControl, FormControlProps} from "react-bootstrap";
 import {withMask} from "use-mask-input";
+import {BsPrefixProps, ReplaceProps} from "react-bootstrap/helpers";
 
-export default function MaskedFormControl(props:any) {
+//handy type definition to wrap up the replace+bsprefix bits of bootstrap
+type BootstrapComponentProps<As extends React.ElementType, P> = ReplaceProps<As, BsPrefixProps<As> & P>
+
+//our extended button properties
+type MaskedFormControlProps = {
+    //any new properties we want to add go here
+} & FormControlProps
+
+//boot-strap-ified full button properties with all the bells and whistles
+type MaskedFormControlProperties<As extends React.ElementType = 'input'> =
+    BootstrapComponentProps<As, MaskedFormControlProps>
+
+export default function MaskedFormControl(props: MaskedFormControlProperties) {
     /*
     // this code can be used with plain inputmask library
     // don't forget about ref={ref} in actual element and import of inputmask(.min).js
