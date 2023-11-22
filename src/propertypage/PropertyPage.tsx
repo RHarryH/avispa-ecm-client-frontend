@@ -99,7 +99,8 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                             }
                         }
                     } else if(element.type === 'money') {
-                        return element?.value.replace(",", ".")
+                        const radixPoint = ","; // TODO: Inputmask().mask(testRef.current).option('radixPoint');
+                        return element?.value.replace(radixPoint, ".");
                     }
                 }
 

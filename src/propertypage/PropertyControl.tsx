@@ -20,9 +20,10 @@ import {ComboRadio, Date, Money, Number, PropertyControlProps, Text, TextArea} f
 import ComboControl from "./ComboControl";
 import {FormControl, InputGroup} from "react-bootstrap";
 import RadioControl from "./RadioControl";
-import React from "react";
+import React, {useCallback} from "react";
 import MaskedFormControl from "./MaskedFormControl";
 import {withMask} from "use-mask-input";
+import Inputmask from "inputmask";
 
 interface PropertyControlComponentProps {
     control: PropertyControlProps;
@@ -56,6 +57,52 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
         }
     }
 
+    const onChange = useCallback((event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        runCustomValidation(event.currentTarget);
+    }, []);
+
+    function runCustomValidation(element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) {
+        element.setCustomValidity("");
+
+        if (element.validity.valid) {
+            const customValidation = control.customValidation?.function;
+            if (customValidation) {
+                let value = element.value;
+                if (control.type == 'money') {
+                    const radixPoint = Inputmask().mask(element).option('radixPoint');
+                    value = value.replace(radixPoint, ".");
+                }
+
+                if (!executeFunctionByName(customValidation, window, [value])) {
+                    setValidationMessage(element);
+                }
+            }
+        }
+    }
+
+    function executeFunctionByName(functionName: string, context: any, args: any[]): boolean {
+        let namespaces = functionName.split(".");
+        let func = namespaces.pop();
+
+        if (!func) {
+            return true;
+        }
+
+        for (const element of namespaces) {
+            context = context[element];
+        }
+        return context[func](...args);
+    }
+
+    function setValidationMessage(element: EventTarget & (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)) {
+        const validationMessage = control.customValidation?.message;
+        if (validationMessage) {
+            element.setCustomValidity(validationMessage);
+        } else {
+            element.setCustomValidity("Custom validation failed");
+        }
+    }
+
     const id = getPropertyId(control, rootPropertyName, valueIndex);
     const name = getPropertyName(control, rootPropertyName, valueIndex);
     const value = getControlValue(control, valueIndex);
@@ -67,18 +114,18 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
                 'id': id,
                 'name': name,
                 'value': value
-            }}/>
+            }} onChange={onChange}/>
         case 'date':
             const date = control as Date;
             return (
                 <FormControl type="date" min={date.min} max={date.max} step={date.step}
-                             id={id} name={name} defaultValue={value} required={date.required}/>
+                             id={id} name={name} defaultValue={value} required={date.required} onChange={onChange}/>
             );
         case 'datetime':
             const datetime = control as Date;
             return (
                 <FormControl type="datetime-local" min={datetime.min} max={datetime.max} step={datetime.step}
-                             id={id} name={name} defaultValue={value} required={datetime.required}/>
+                             id={id} name={name} defaultValue={value} required={datetime.required} onChange={onChange}/>
             );
         case 'money':
             const money = control as Money;
@@ -108,8 +155,9 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
                             element.selectionStart = caret
                             element.selectionEnd = caret
                         })
-                    }}
-                                 type="text" id={id} name={name} defaultValue={value} required={money.required}/>
+
+                        onChange(event);
+                    }} type="text" id={id} name={name} defaultValue={value} required={money.required}/>
                     <InputGroup.Text>{money.currency}</InputGroup.Text>
                 </InputGroup>
             );
@@ -117,7 +165,7 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             const number = control as Number;
             return (
                 <FormControl type="number" min={number.min} max={number.max} step={number.step}
-                             id={id} name={name} defaultValue={value} required={number.required}/>
+                             id={id} name={name} defaultValue={value} required={number.required} onChange={onChange}/>
             );
         case 'radio':
             const radio = control as ComboRadio;
@@ -125,19 +173,23 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
                 'id': id,
                 'name': name,
                 'value': value
-            }}/>
+            }} onChange={onChange}/>
         case 'text':
         case 'email':
             const text = control as Text;
             return (
                 <MaskedFormControl type={text.type} pattern={text.pattern} minLength={text.minLength}
-                             maxLength={text.maxLength} id={id} name={name} defaultValue={value} required={text.required}/>
+                                   maxLength={text.maxLength} id={id} name={name} defaultValue={value}
+                                   required={text.required}
+                                   onChange={onChange}/>
             );
         case 'textarea':
             const textarea = control as TextArea;
             return (
                 <FormControl as="textarea" rows={textarea.rows} cols={textarea.cols} minLength={textarea.minLength}
-                             maxLength={textarea.maxLength} id={id} name={name} defaultValue={value} required={textarea.required}/>
+                             maxLength={textarea.maxLength} id={id} name={name} defaultValue={value}
+                             required={textarea.required}
+                             onChange={onChange}/>
             );
         case 'hidden':
             return (
