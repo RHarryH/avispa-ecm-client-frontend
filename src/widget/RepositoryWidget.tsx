@@ -22,16 +22,17 @@ import axios from "axios";
 import {useEventContext, useEventListener} from "../event/EventContext";
 import {processDownload} from "../misc/Misc";
 import TreeView from "../TreeView";
+import {DefaultConcreteWidgetProps} from "./Widget";
 
 interface DirectoryNode {
-    id: string;
-    parent: string;
-    text: string;
-    href?: string;
-    type: string;
+    id: string
+    parent: string
+    text: string
+    href?: string
+    type: string
 }
 
-function RepositoryWidget() {
+function RepositoryWidget({onError}: DefaultConcreteWidgetProps) {
     const { publishEvent } = useEventContext();
     const [repositoryWidgetData, setRepositoryWidgetData] = useState<DirectoryNode[]>([]);
 
@@ -60,7 +61,11 @@ function RepositoryWidget() {
                 setRepositoryWidgetData(folderHierarchy);
             })
             .catch(function(error) {
-                console.log(error);
+                if (onError) {
+                    onError(error);
+                } else {
+                    console.error(error.message);
+                }
             })
     }
 
