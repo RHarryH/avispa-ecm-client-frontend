@@ -17,10 +17,10 @@
  */
 
 import React, {useCallback, useState} from "react";
-import {Button} from "react-bootstrap";
 import RepositoryWidget from "./RepositoryWidget";
 import PropertiesWidget from "./PropertiesWidget";
 import ListWidget from "./ListWidget";
+import ErrorPage from "../misc/Error";
 
 export interface RestError {
     status: number
@@ -49,28 +49,21 @@ export interface DefaultConcreteWidgetProps {
 function Widget(widget: WidgetProps) {
     const [error, setError] = useState<RestError | undefined>(undefined);
 
-    const onError = useCallback((error: RestError) => {
+    const onError = useCallback((error: RestError | undefined) => {
         setError(error);
     }, []);
 
     if (error) {
-        return (
-            <div className="py-3 text-center">
-                <h3>Widget failed during loading!</h3>
-                <h4>{error.message}</h4>
-                <Button variant="primary" className="bi bi-arrow-repeat" onClick={() => setError(undefined)}> Reload
-                    widget</Button>
-            </div>
-        );
-    } else {
-        switch (widget.type) {
-            case WidgetType.REPOSITORY:
-                return (<RepositoryWidget onError={onError}/>);
-            case WidgetType.PROPERTIES:
-                return (<PropertiesWidget/>);
-            case WidgetType.LIST:
-                return (<ListWidget configuration={widget.configuration} onError={onError}></ListWidget>);
-        }
+        return (<ErrorPage error={error} displayMessage="Widget failed during loading!" onError={onError}></ErrorPage>);
+    }
+
+    switch (widget.type) {
+        case WidgetType.REPOSITORY:
+            return (<RepositoryWidget onError={onError}/>);
+        case WidgetType.PROPERTIES:
+            return (<PropertiesWidget/>);
+        case WidgetType.LIST:
+            return (<ListWidget configuration={widget.configuration} onError={onError}></ListWidget>);
     }
 }
 
