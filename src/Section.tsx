@@ -16,25 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {SectionLocation, SectionProps, WidgetProps, WidgetType} from "./interface/AppProps";
 import {Col, Tab, Tabs} from "react-bootstrap";
 import React, {useState} from "react";
 import {useEventListener} from "./event/EventContext";
 import {FocusableEventData, ItemUpsertedEventData} from "./event/EventReducer";
-import RepositoryWidget from "./widget/RepositoryWidget";
-import PropertiesWidget from "./widget/PropertiesWidget";
-import ListWidget from "./widget/ListWidget";
+import Widget, {WidgetProps, WidgetType} from "./widget/Widget";
 
-function Widget(widget: WidgetProps) {
-    switch(widget.type) {
-        case WidgetType.REPOSITORY:
-            return (<RepositoryWidget/>);
-        case WidgetType.PROPERTIES:
-            return (<PropertiesWidget/>);
-        case WidgetType.LIST:
-            return (<ListWidget configuration={widget.configuration}></ListWidget>);
-    }
+export enum SectionLocation {
+    SIDEBAR = 'SIDEBAR',
+    CENTER = 'CENTER'
 }
+
+export interface SectionProps {
+    location: SectionLocation
+    activeWidget?: string
+    widgets: WidgetProps[]
+}
+
 function Section({location, widgets}:SectionProps){
     const [key, setKey] = useState<string>(getDefaultWidget(widgets));
 

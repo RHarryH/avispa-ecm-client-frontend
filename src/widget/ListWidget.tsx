@@ -24,6 +24,7 @@ import {ListItemDeletedEventData} from "../event/EventReducer";
 import {processDownload} from "../misc/Misc";
 import ConfirmationModal from "../modal/ConfirmationModal";
 import AdvancedModal from "../modal/AdvancedModal";
+import {DefaultConcreteWidgetProps} from "./Widget";
 
 interface ListData {
     id: string;
@@ -37,7 +38,7 @@ interface ListDataProps {
     headers: string[];
 }
 
-interface ListWidgetProps {
+interface ListWidgetProps extends DefaultConcreteWidgetProps {
     configuration?: string;
 }
 
@@ -46,7 +47,7 @@ interface ModalProps {
     rowId?: string;
 }
 
-function ListWidget({configuration}:ListWidgetProps) {
+function ListWidget({configuration, onError}: ListWidgetProps) {
     const [listWidgetData, setListWidgetData] = useState<ListDataProps>({
         caption: "",
         resource: "",
@@ -100,7 +101,11 @@ function ListWidget({configuration}:ListWidgetProps) {
                 setData(widgetData.data);
             })
             .catch(function (error) {
-                console.log(error);
+                if (onError) {
+                    onError(error);
+                } else {
+                    console.error(error.message);
+                }
             })
     }
 

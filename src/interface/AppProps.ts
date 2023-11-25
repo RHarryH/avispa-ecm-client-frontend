@@ -16,60 +16,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import {SectionProps} from "../Section";
+
 export interface AppProps {
-    fullName: string;
-    shortName: string;
-    description: string;
-    header: Header;
-    layout: Layout;
-    versions: Version[];
+    fullName: string
+    shortName: string
+    description: string
+    header: Header
+    layout: Layout
+    versions: Version[]
 }
 
 interface Header {
-    menu: Menu;
+    menu: Menu
 }
 
 export interface Menu {
-    items: MenuItem[];
+    items: MenuItem[]
 }
 
 export interface MenuItem {
-    label: string;
-    items?: MenuItem[];
-    resource?: string;
-    action?: string;
+    label: string
+    items?: MenuItem[]
+    resource?: string
+    action?: string
 }
 
 interface Layout {
     sections: SectionProps[];
 }
 
-export enum SectionLocation {
-    SIDEBAR = 'SIDEBAR',
-    CENTER = 'CENTER'
-}
-
-export interface SectionProps {
-    location: SectionLocation;
-    activeWidget?: string;
-    widgets: WidgetProps[];
-}
-
-export enum WidgetType {
-    REPOSITORY= 'REPOSITORY',
-    PROPERTIES = 'PROPERTIES',
-    LIST = 'LIST'
-}
-
-export interface WidgetProps {
-    label: string;
-    active?: boolean;
-    type: WidgetType;
-    resource?:string;
-    configuration?: string;
-}
-
 export interface Version {
-    componentName: string;
-    number: string;
+    componentName: string
+    number: string
 }
