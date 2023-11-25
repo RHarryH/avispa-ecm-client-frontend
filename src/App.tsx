@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, {useEffect, useMemo, useReducer, useState} from 'react';
+import React, {useCallback, useEffect, useMemo, useReducer, useState} from 'react';
 import {Helmet} from "react-helmet";
 import './App.css';
 import Header from "./Header";
@@ -29,8 +29,16 @@ import axios from "axios";
 import EventContext from "./event/EventContext";
 import {eventReducer} from "./event/EventReducer";
 import Notifications from "./notification/Notifications";
+import {RestError} from "./widget/Widget";
+import ErrorPage from "./misc/Error";
 
 function App() {
+    const [error, setError] = useState<RestError | undefined>(undefined);
+
+    const onError = useCallback((error: RestError | undefined) => {
+        setError(error);
+    }, []);
+
     const [appData, setAppData] = useState<AppProps>({
         fullName: "Avispa ECM Client",
         shortName: "ECM",
@@ -58,17 +66,19 @@ function App() {
                 setAppData(clientData);
             })
             .catch(function(error) {
-                console.log(error);
+                if (onError) {
+                    onError(error);
+                } else {
+                    console.error(error.message);
+                }
             })
-    }, []);
+    }, [error]);
 
     const [state, publishEvent ] = useReducer(eventReducer, {type: null});
 
     const eventProviderState = useMemo(() => (
-        {
-            state,
-            publishEvent
-        }), [state]);
+        {state, publishEvent}
+    ), [state]);
 
     return (
         <div className="App">
@@ -88,16 +98,23 @@ function App() {
 
             <main>
                 <Container fluid>
-                    <EventContext.Provider value={eventProviderState}>
-                        <Row>
-                            {
-                                appData.layout.sections.map(section => {
-                                    return (<Section location={section.location} widgets={section.widgets}></Section>);
-                                })
-                            }
-                        </Row>
-                        <Notifications/>
-                    </EventContext.Provider>
+                    {
+                        error ? (<ErrorPage error={error} displayMessage="Something went wrong! Please try again."
+                                            onError={onError}></ErrorPage>) :
+                            (
+                                <EventContext.Provider value={eventProviderState}>
+                                    <Row>
+                                        {
+                                            appData.layout.sections.map(section => {
+                                                return (<Section location={section.location}
+                                                                 widgets={section.widgets}></Section>);
+                                            })
+                                        }
+                                    </Row>
+                                    <Notifications/>
+                                </EventContext.Provider>
+                            )
+                    }
                 </Container>
             </main>
 
