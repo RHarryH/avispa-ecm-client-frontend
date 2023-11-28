@@ -18,6 +18,7 @@
 
 import {AxiosResponse} from "axios";
 import {Columns, Control, Group, PropertyControlProps, TableProps, TabsProps} from "../interface/PropertyPageConfig";
+import {RestError} from "../widget/Widget";
 
 export function processDownload(response: AxiosResponse) {
     const type = response.headers['content-type'];
@@ -122,3 +123,10 @@ export const toKebabCase = (str: string) =>
         .match(/[A-Z]{2,}(?=[A-Z][a-z]+[0-9]*|\b)|[A-Z]?[a-z]+[0-9]*|[A-Z]|[0-9]+/g)
         ?.map((x) => x.toLowerCase())
         .join("-");
+
+
+export function blob2Json(responseData: any): RestError {
+    const isJsonBlob = (data: any) => data instanceof Blob && data.type === "application/json";
+    const processedResponseData = isJsonBlob(responseData) ? responseData?.text() : responseData.response.data || {};
+    return (typeof processedResponseData === "string") ? JSON.parse(processedResponseData) : processedResponseData;
+}

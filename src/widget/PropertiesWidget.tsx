@@ -19,7 +19,7 @@
 import React, {useState} from "react";
 import axios from "axios";
 import {PropertyPageConfig} from "../interface/PropertyPageConfig";
-import {useEventListener} from "../event/EventContext";
+import {useEventContext, useEventListener} from "../event/EventContext";
 import {RepositoryItemEventData} from "../event/EventReducer";
 import PropertyPage from "../propertypage/PropertyPage";
 
@@ -29,6 +29,7 @@ interface PropertiesWidgetData {
 }
 
 function PropertiesWidget() {
+    const {publishEvent} = useEventContext();
     const [propertiesWidgetData, setPropertiesWidgetData] = useState<PropertiesWidgetData>({});
 
     useEventListener(["REPOSITORY_ITEM_SELECTED"], (state) => {
@@ -38,8 +39,17 @@ function PropertiesWidget() {
                 const widgetData = response.data;
                 setPropertiesWidgetData(widgetData);
             })
-            .catch(function (error) {
-                console.log(error);
+            .catch(error => {
+                publishEvent({
+                    type: "ERROR_EVENT",
+                    payload: {
+                        id: data.id,
+                        notification: {
+                            type: 'error',
+                            message: "Can't display object" + (error.response.data ? ' Reason: ' + error.response.data.message : '')
+                        }
+                    }
+                });
             })
     });
 

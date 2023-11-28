@@ -20,7 +20,7 @@ import React, {useCallback, useEffect, useState} from "react";
 import {Button, Col, Row} from "react-bootstrap";
 import axios from "axios";
 import {useEventContext, useEventListener} from "../event/EventContext";
-import {processDownload} from "../misc/Misc";
+import {blob2Json, processDownload} from "../misc/Misc";
 import TreeView from "../TreeView";
 import {DefaultConcreteWidgetProps} from "./Widget";
 
@@ -55,12 +55,12 @@ function RepositoryWidget({onError}: DefaultConcreteWidgetProps) {
     }, []);
 
     function fetchData() {
-        axios.get<DirectoryNode[]>(`/directory`)
+        axios.get<DirectoryNode[]>('/directory')
             .then(response => {
                 const folderHierarchy = response.data;
                 setRepositoryWidgetData(folderHierarchy);
             })
-            .catch(function(error) {
+            .catch(error => {
                 if (onError) {
                     onError(error);
                 } else {
@@ -70,12 +70,24 @@ function RepositoryWidget({onError}: DefaultConcreteWidgetProps) {
     }
 
     const exportData = useCallback(() => {
-        axios.get(`/directory/export`, {responseType: 'blob'})
+        axios.get('/directory/export', {responseType: 'blob'})
             .then(response => {
                 processDownload(response);
             })
-            .catch(function(error) {
-                console.log(error);
+            .catch(async error => {
+                const responseData = await error.response.data;
+                const responseJson = blob2Json(responseData);
+
+                publishEvent({
+                    type: "ERROR_EVENT",
+                    payload: {
+                        id: undefined,
+                        notification: {
+                            type: 'error',
+                            message: "Can't export data" + (error.response.data ? ' Reason: ' + responseJson.message : '')
+                        }
+                    }
+                });
             })
     }, []);
 

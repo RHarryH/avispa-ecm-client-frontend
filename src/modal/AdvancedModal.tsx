@@ -36,6 +36,8 @@ import {PropertyPageConfig, TableProps} from "../interface/PropertyPageConfig";
 import PropertyPage from "../propertypage/PropertyPage";
 import Container from "react-bootstrap/Container";
 import {getPropertyControl} from "../misc/Misc";
+import ErrorPage from "../misc/ErrorPage";
+import {RestError} from "../widget/Widget";
 
 export type ModalType = "ADD" | "UPDATE" | "CLONE";
 type ModalPageType = "SELECT_SOURCE" | "PROPERTIES";
@@ -69,14 +71,15 @@ interface AdvancedModalProps {
     onClose: any
 }
 
-interface ModalContext {
-    pageType: ModalPageType
-    contextInfo: any
-}
-
 function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     const {publishEvent} = useEventContext();
     const formRef = useRef<ElementRef<"form">>(null);
+
+    const [error, setError] = useState<RestError | undefined>(undefined);
+
+    const onError = useCallback((error: RestError | undefined) => {
+        setError(error);
+    }, []);
 
     const [modalData, setModalData] = useState<ModalData>({
         title: "Default modal",
@@ -112,7 +115,18 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                     setInitPropertyPage(structuredClone(modal.propertyPage));
                 })
                 .catch(error => {
-                    console.log(error);
+                    publishEvent({
+                        type: "ERROR_EVENT",
+                        payload: {
+                            id: undefined,
+                            notification: {
+                                type: 'error',
+                                message: "Can't load modal" + (error.response.data ? ' Reason: ' + error.response.data.message : '')
+                            }
+                        }
+                    });
+
+                    close();
                 })
                 .finally(() => {
                     setIsLoading(false);
@@ -123,6 +137,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     const close = useCallback(() => {
         setModalContext([]);
         setPageNumber(0);
+        setError(undefined);
         onClose();
     }, [show]);
 
@@ -155,6 +170,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                         }
                     }
                 })
+                close();
             })
             .catch(error => {
                 publishEvent({
@@ -167,9 +183,6 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                          }
                      }
                  })
-            })
-            .finally(() => {
-                close();
             })
         }
     }, [modalData]);
@@ -219,15 +232,18 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 setPropertyPage(propertyPage);
                 setInitPropertyPage(structuredClone(propertyPage));
                 setPageNumber(newPageNumber);
-            })
-            .catch(error => {
-                console.log(error);
+            }).catch(error => {
+                if (error) {
+                    onError(error);
+                } else {
+                    console.error(error.message);
+                }
             })
             .finally(() => {
                 setIsLoading(false);
             });
         }
-    }, [propertyPage, modalData, show, pageNumber]);
+    }, [propertyPage, modalData, show, pageNumber, error]);
 
     function onChange(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -294,67 +310,81 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         <>
             <Modal show={show} on onHide={close} centered size="xl">
                 <Modal.Header closeButton>
-                    <Modal.Title>{modalData.title}</Modal.Title>
+                    <Modal.Title>{error ? "Error page" : modalData.title}</Modal.Title>
                 </Modal.Header>
                 <Container>
                     <Row>
-                    {
-                        isLoading ?
-                            <Col>
-                                <Modal.Body className="d-flex justify-content-center">
-                                    <Spinner animation="border" role="status">
-                                        <span className="visually-hidden">Loading...</span>
-                                    </Spinner>
-                                </Modal.Body>
-                            </Col> :
-                            <>
-                                {
-                                modalData.pages.length > 1 ?
-                                    <Col lg="auto" className="p-0 border-end">
-                                        <ListGroup variant="flush">
-                                            {
-                                                modalData.pages.map((page, index) => (
-                                                    <ListGroupItem active={pageNumber === index} aria-current={pageNumber === index}>{page.name}</ListGroupItem>
-                                                ))
-                                            }
-                                        </ListGroup>
-                                    </Col>
-                                    : null
-                                }
-                                <Col className="p-0">
-                                    <Form ref={formRef} onSubmit={runAction} onChange={onChange}>
-                                        <Modal.Body>
-                                                <PropertyPage propertyPage={propertyPage}
-                                                              onTableRowAdded={onTableRowAdded}
-                                                              onTableRowRemoved={onTableRowRemoved}></PropertyPage>
-                                        </Modal.Body>
-                                        <Modal.Footer>
-                                            {
-                                                modalData.pages.length > 1 && pageNumber > 0 ?
-                                                    <Button variant="primary" className="bi bi-caret-left-fill"
-                                                            onClick={() => loadPage(pageNumber - 1)}> Previous</Button> :
-                                                    null
-                                            }
-                                            <OverlayTrigger placement="bottom" overlay={tooltip('Resets the content of this page')}>
-                                                <Button type="reset" variant="secondary" onClick={reset}>Reset</Button>
-                                            </OverlayTrigger>
-                                            <Button variant="danger" onClick={onClose}>Reject</Button>
-                                            {
-                                                pageNumber === modalData.pages.length - 1 ?
-                                                    <Button type="submit" variant="primary">{modalData.action?.buttonValue ?? "Unknown action"}</Button>
-                                                    : null
-                                            }
-                                            {
-                                                modalData.pages.length > 1 && (pageNumber < modalData.pages.length - 1) ?
-                                                    <Button variant="primary" className="bi bi-caret-right-fill"
-                                                            onClick={() => loadPage(pageNumber + 1)}> Next</Button> :
-                                                    null
-                                            }
-                                        </Modal.Footer>
-                                    </Form>
+                        {
+                            isLoading ?
+                                <Col>
+                                    <Modal.Body className="d-flex justify-content-center">
+                                        <Spinner animation="border" role="status">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </Spinner>
+                                    </Modal.Body>
                                 </Col>
-                            </>
-                    }
+                                : (error ?
+                                    <Col>
+                                        <Modal.Body>
+                                            <ErrorPage error={error} displayMessage="Page can't be loaded"
+                                                       buttonMessage="Go back to the previous page"
+                                                       onError={() => setError(undefined)}/>
+                                        </Modal.Body>
+                                    </Col>
+                                    :
+                                    <>
+                                        {
+                                            modalData.pages.length > 1 ?
+                                                <Col lg="auto" className="p-0 border-end">
+                                                    <ListGroup variant="flush">
+                                                        {
+                                                            modalData.pages.map((page, index) => (
+                                                                <ListGroupItem active={pageNumber === index}
+                                                                               aria-current={pageNumber === index}>{page.name}</ListGroupItem>
+                                                            ))
+                                                        }
+                                                    </ListGroup>
+                                                </Col>
+                                                : null
+                                        }
+                                        <Col className="p-0">
+                                            <Form ref={formRef} onSubmit={runAction} onChange={onChange}>
+                                                <Modal.Body>
+
+                                                    <PropertyPage propertyPage={propertyPage}
+                                                                  onTableRowAdded={onTableRowAdded}
+                                                                  onTableRowRemoved={onTableRowRemoved}></PropertyPage>
+                                                </Modal.Body>
+                                                <Modal.Footer>
+                                                    {
+                                                        modalData.pages.length > 1 && pageNumber > 0 ?
+                                                            <Button variant="primary" className="bi bi-caret-left-fill"
+                                                                    onClick={() => loadPage(pageNumber - 1)}> Previous</Button> :
+                                                            null
+                                                    }
+                                                    <OverlayTrigger placement="bottom"
+                                                                    overlay={tooltip('Resets the content of this page')}>
+                                                        <Button type="reset" variant="secondary"
+                                                                onClick={reset}>Reset</Button>
+                                                    </OverlayTrigger>
+                                                    <Button variant="danger" onClick={onClose}>Reject</Button>
+                                                    {
+                                                        pageNumber === modalData.pages.length - 1 ?
+                                                            <Button type="submit"
+                                                                    variant="primary">{modalData.action?.buttonValue ?? "Unknown action"}</Button>
+                                                            : null
+                                                    }
+                                                    {
+                                                        modalData.pages.length > 1 && (pageNumber < modalData.pages.length - 1) ?
+                                                            <Button variant="primary" className="bi bi-caret-right-fill"
+                                                                    onClick={() => loadPage(pageNumber + 1)}> Next</Button> :
+                                                            null
+                                                    }
+                                                </Modal.Footer>
+                                            </Form>
+                                        </Col>
+                                    </>)
+                        }
                     </Row>
                 </Container>
             </Modal>
