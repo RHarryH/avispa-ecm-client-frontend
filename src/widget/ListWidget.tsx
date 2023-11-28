@@ -19,9 +19,9 @@
 import React, {useCallback, useEffect, useState} from "react";
 import {Button, OverlayTrigger, Table, Tooltip} from "react-bootstrap";
 import axios from "axios";
-import {useEventListener} from "../event/EventContext";
+import {useEventContext, useEventListener} from "../event/EventContext";
 import {ListItemDeletedEventData} from "../event/EventReducer";
-import {processDownload} from "../misc/Misc";
+import {blob2Json, processDownload} from "../misc/Misc";
 import ConfirmationModal from "../modal/ConfirmationModal";
 import AdvancedModal from "../modal/AdvancedModal";
 import {DefaultConcreteWidgetProps} from "./Widget";
@@ -48,6 +48,8 @@ interface ModalProps {
 }
 
 function ListWidget({configuration, onError}: ListWidgetProps) {
+    const {publishEvent} = useEventContext();
+
     const [listWidgetData, setListWidgetData] = useState<ListDataProps>({
         caption: "",
         resource: "",
@@ -100,7 +102,7 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                 setListWidgetData(widgetData);
                 setData(widgetData.data);
             })
-            .catch(function (error) {
+            .catch(error => {
                 if (onError) {
                     onError(error);
                 } else {
@@ -123,13 +125,25 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
         </Tooltip>
     );
 
-    const getRendition = useCallback((rowId:string) => {
-        axios.get(`/invoice/rendition/` + rowId, {responseType: 'blob'})
+    const getRendition = useCallback((resource: string, rowId: string) => {
+        axios.get('/' + resource + '/rendition/' + rowId, {responseType: 'blob'})
             .then(response => {
                 processDownload(response);
             })
-            .catch(function(error) {
-                console.log(error);
+            .catch(async error => {
+                const responseData = await error.response.data;
+                const responseJson = blob2Json(responseData);
+
+                publishEvent({
+                    type: "ERROR_EVENT",
+                    payload: {
+                        id: rowId,
+                        notification: {
+                            type: 'error',
+                            message: "Can't download rendition" + (error.response.data ? ' Reason: ' + responseJson.message : '')
+                        }
+                    }
+                });
             })
     }, []);
 
@@ -181,7 +195,9 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                                             {
                                                 Object.keys(row.values).filter(key => key === "pdfRenditionAvailable").length ?
                                                     <OverlayTrigger placement="bottom" overlay={tooltip("Download PDF rendition")}>
-                                                        <Button variant="" value={row.id} className="bi bi-file-earmark-arrow-down-fill" onClick={() => getRendition(row.id)}/>
+                                                        <Button variant="" value={row.id}
+                                                                className="bi bi-file-earmark-arrow-down-fill"
+                                                                onClick={() => getRendition(listWidgetData.resource, row.id)}/>
                                                     </OverlayTrigger> :
                                                     <></>
                                             }

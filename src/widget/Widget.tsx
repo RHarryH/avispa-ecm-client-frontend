@@ -20,7 +20,7 @@ import React, {useCallback, useState} from "react";
 import RepositoryWidget from "./RepositoryWidget";
 import PropertiesWidget from "./PropertiesWidget";
 import ListWidget from "./ListWidget";
-import ErrorPage from "../misc/Error";
+import ErrorPage from "../misc/ErrorPage";
 
 export interface RestError {
     status: number
@@ -54,7 +54,8 @@ function Widget(widget: WidgetProps) {
     }, []);
 
     if (error) {
-        return (<ErrorPage error={error} displayMessage="Widget failed during loading!" onError={onError}></ErrorPage>);
+        return (<ErrorPage error={error} displayMessage="Widget failed during loading!"
+                           buttonMessage="Reload widget" onError={onError}></ErrorPage>);
     }
 
     switch (widget.type) {

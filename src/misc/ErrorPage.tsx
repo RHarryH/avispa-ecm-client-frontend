@@ -23,16 +23,17 @@ import {RestError} from "../widget/Widget";
 export interface ErrorProps {
     error: RestError
     displayMessage: string
+    buttonMessage: string
     onError: (error: RestError | undefined) => void
 }
 
-function ErrorPage({error, displayMessage, onError}: ErrorProps) {
+function ErrorPage({error, displayMessage, buttonMessage, onError}: ErrorProps) {
     return (
         <div className="py-3 text-center">
             <h3>{displayMessage}</h3>
             <h4>{error.message}</h4>
-            <Button variant="primary" className="bi bi-arrow-repeat" onClick={() => onError(undefined)}> Reload
-                widget</Button>
+            <Button variant="primary" className="bi bi-arrow-repeat"
+                    onClick={() => onError(undefined)}> {buttonMessage}</Button>
         </div>
     );
 }
