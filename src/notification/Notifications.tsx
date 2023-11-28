@@ -49,7 +49,7 @@ function Notifications() {
 
     return (
         <div aria-live="polite" aria-atomic="true">
-            <ToastContainer className="position-fixed p-3 mb-5" position="bottom-end" style={{ zIndex: 1 }}>
+            <ToastContainer className="position-fixed p-3 mb-5" position="bottom-end" style={{zIndex: 9999}}>
                 {notifications.map(({ id, notification }) => (
                     <Notification key={id} {...notification} onRemove={() => removeNotification(id)} />
                 ))}
