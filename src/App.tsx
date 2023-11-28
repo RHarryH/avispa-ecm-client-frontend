@@ -30,7 +30,7 @@ import EventContext from "./event/EventContext";
 import {eventReducer} from "./event/EventReducer";
 import Notifications from "./notification/Notifications";
 import {RestError} from "./widget/Widget";
-import ErrorPage from "./misc/Error";
+import ErrorPage from "./misc/ErrorPage";
 
 function App() {
     const [error, setError] = useState<RestError | undefined>(undefined);
@@ -60,12 +60,12 @@ function App() {
     });
 
     useEffect(() => {
-        axios.get<AppProps>(`/client`)
+        axios.get<AppProps>('/client')
             .then(res => {
                 const clientData = res.data;
                 setAppData(clientData);
             })
-            .catch(function(error) {
+            .catch(error => {
                 if (onError) {
                     onError(error);
                 } else {
@@ -92,7 +92,7 @@ function App() {
 
             <header>
                 <EventContext.Provider value={eventProviderState}>
-                    <Header brand={appData.shortName} menu={appData.header.menu}/>
+                    <Header brand={appData.shortName} menu={appData.header?.menu}/>
                 </EventContext.Provider>
             </header>
 
@@ -100,12 +100,12 @@ function App() {
                 <Container fluid>
                     {
                         error ? (<ErrorPage error={error} displayMessage="Something went wrong! Please try again."
-                                            onError={onError}></ErrorPage>) :
+                                            buttonMessage="Reload website" onError={onError}></ErrorPage>) :
                             (
                                 <EventContext.Provider value={eventProviderState}>
                                     <Row>
                                         {
-                                            appData.layout.sections.map(section => {
+                                            appData.layout?.sections.map(section => {
                                                 return (<Section location={section.location}
                                                                  widgets={section.widgets}></Section>);
                                             })

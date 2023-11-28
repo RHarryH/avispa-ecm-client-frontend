@@ -48,7 +48,7 @@ function Header({brand, menu}:HeaderProps) {
     });
 
     function createMenu(items:MenuItem[]) {
-        return items.map(item => createItems(item));
+        return items ? items.map(item => createItems(item)) : null;
     }
     function createItems(item:MenuItem) {
         if(item.items?.length) {
@@ -83,7 +83,7 @@ function Header({brand, menu}:HeaderProps) {
                     <Navbar.Brand href="#home">{brand}</Navbar.Brand>
                     <Navbar.Toggle aria-controls="basic-navbar-nav" aria-expanded="false" aria-label="Toggle navigation"/>
                     <Navbar.Collapse id="basic-navbar-nav">
-                        <Nav className="me-auto">{createMenu(menu.items)}</Nav>
+                        <Nav className="me-auto">{createMenu(menu?.items)}</Nav>
                     </Navbar.Collapse>
                 </Container>
             </Navbar>
