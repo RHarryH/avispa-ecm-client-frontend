@@ -36,7 +36,7 @@ function RepositoryWidget({onError}: DefaultConcreteWidgetProps) {
     const { publishEvent } = useEventContext();
     const [repositoryWidgetData, setRepositoryWidgetData] = useState<DirectoryNode[]>([]);
 
-    useEventListener(["LIST_ITEM_DELETED"], (state) => {
+    useEventListener(["LIST_ITEM_DELETED", "ITEM_UPSERT"], (state) => {
         fetchData(); // reload full widget
         publishEvent({
             type: "REPOSITORY_ITEM_DESELECTED",

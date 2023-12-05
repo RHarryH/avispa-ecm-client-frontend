@@ -208,6 +208,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
 
                 // wrap form data into modal context
                 context.forEach((value, key) => contextWrapper.set("contextInfo." + key, value));
+                contextWrapper.set("modalType", modalData.type);
                 contextWrapper.set("sourcePageType", modalData.pages[pageNumber].pageType);
                 contextWrapper.set("targetPageType", targetPageType);
 
