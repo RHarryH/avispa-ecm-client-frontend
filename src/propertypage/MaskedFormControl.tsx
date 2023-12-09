@@ -16,9 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from "react";
+import React, {useEffect, useRef} from "react";
 import {FormControl, FormControlProps} from "react-bootstrap";
-import {withMask} from "use-mask-input";
 import {BsPrefixProps, ReplaceProps} from "react-bootstrap/helpers";
 
 //handy type definition to wrap up the replace+bsprefix bits of bootstrap
@@ -34,16 +33,36 @@ type MaskedFormControlProperties<As extends React.ElementType = 'input'> =
     BootstrapComponentProps<As, MaskedFormControlProps>
 
 export default function MaskedFormControl(props: MaskedFormControlProperties) {
-    /*
-    // this code can be used with plain inputmask library
-    // don't forget about ref={ref} in actual element and import of inputmask(.min).js
     const ref = useRef<HTMLElement>(null);
+
+    // /*"greedy": true*/
+    const currencyAlias = {
+        alias: "numeric",
+        numericInput: true,
+        min: 0,
+        max: 9999999.99,
+        groupSeparator: '\xa0', // non-breaking space
+        radixPoint: ',',
+        autoGroup: true,
+        autoUnmask: true,
+        digits: 2,
+        digitsOptional: false,
+        allowPlus: false,
+        allowMinus: false,
+        removeMaskOnSubmit: true,
+        greedy: true
+    };
 
     useEffect(() => {
         if(ref.current) {
-            Inputmask({"regex": props.pattern}).mask(ref.current)
+            if (props.pattern) {
+                Inputmask({"regex": props.pattern}).mask(ref.current)
+            } else {
+                Inputmask(currencyAlias).mask(ref.current)
+            }
         }
-    }, []);*/
+    }, []);
 
-    return <FormControl ref={withMask("", {"regex": props.pattern})} {...props}/>
+    //return <FormControl ref={withMask("A", {"regex": props.pattern})} {...props}/>
+    return <FormControl ref={ref} {...props}/>
 }

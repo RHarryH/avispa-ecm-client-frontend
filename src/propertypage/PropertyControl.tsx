@@ -22,7 +22,6 @@ import {FormControl, InputGroup} from "react-bootstrap";
 import RadioControl from "./RadioControl";
 import React from "react";
 import MaskedFormControl from "./MaskedFormControl";
-import {withMask} from "use-mask-input";
 
 interface PropertyControlComponentProps {
     control: PropertyControlProps;
@@ -82,33 +81,9 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             );
         case 'money':
             const money = control as Money;
-            // /*"greedy": true*/
-            const currencyAlias = {
-                alias: "numeric",
-                numericInput: true,
-                min: 0,
-                max: 9999999.99,
-                groupSeparator: '\xa0', // non-breaking space
-                radixPoint: ',',
-                autoGroup: true,
-                autoUnmask: true,
-                digits: 2,
-                digitsOptional: false,
-                allowPlus: false,
-                allowMinus: false,
-                removeMaskOnSubmit: true,
-                greedy: true
-            };
             return (
                 <InputGroup>
-                    <FormControl ref={withMask("", currencyAlias)} onChange={(event) => {
-                        const caret = event.target.selectionStart
-                        const element = event.target
-                        window.requestAnimationFrame(() => {
-                            element.selectionStart = caret
-                            element.selectionEnd = caret
-                        })
-                    }} type="text" id={id} name={name} defaultValue={value} required={money.required}/>
+                    <MaskedFormControl type="text" id={id} name={name} defaultValue={value} required={money.required}/>
                     <InputGroup.Text>{money.currency}</InputGroup.Text>
                 </InputGroup>
             );
