@@ -38,6 +38,7 @@ import Container from "react-bootstrap/Container";
 import {getPropertyControl} from "../misc/Misc";
 import ErrorPage from "../misc/ErrorPage";
 import {RestError} from "../widget/Widget";
+import {runCustomValidation} from "../misc/Validation";
 
 export type ModalType = "ADD" | "UPDATE" | "CLONE";
 type ModalPageType = "SELECT_SOURCE" | "PROPERTIES";
@@ -145,13 +146,34 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         setPropertyPage(structuredClone(initPropertyPage));
     }, [initPropertyPage]);
 
+    const validateForm = useCallback((form: EventTarget & HTMLFormElement) => {
+        Array.from(form.elements).forEach((element) => {
+            if ('name' in element) {
+                let input = element as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
+                const foundControl = getPropertyControl(input.name, propertyPage.controls);
+                if (foundControl?.control) {
+                    runCustomValidation(foundControl?.control, input);
+                }
+            }
+        });
+    }, [propertyPage.controls])
+
     const runAction = useCallback((event:React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         if (modalData.action) {
+            const form = event.currentTarget;
+
+            // validate full form
+            validateForm(form);
+            if (!form.reportValidity()) {
+                event.stopPropagation();
+                return;
+            }
+
             const action = modalData.action;
 
-            const data = new FormData(event.currentTarget);
+            const data = new FormData(form);
             axios(action.endpoint, {
                 method: action.method,
                 data: data,
@@ -162,7 +184,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                     type: "ITEM_UPSERT",
                     payload: {
                         id: action.id,
-                        focus: modalData.type === 'ADD' /*|| modalData.type === 'CLONE'*/,
+                        focus: modalData.type === 'ADD' || modalData.type === 'CLONE',
                         upsertedResource: modalData.resource,
                         notification: {
                             type: 'success',
@@ -185,7 +207,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                  })
             })
         }
-    }, [modalData]);
+    }, [modalData, close, validateForm]);
 
     const loadPage = useCallback((newPageNumber: number) => {
         if(show && formRef.current && (pageNumber > 0 || pageNumber < modalData.pages.length)) {
@@ -244,7 +266,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 setIsLoading(false);
             });
         }
-    }, [propertyPage, modalData, show, pageNumber, error]);
+    }, [modalData, show, pageNumber, modalContext, onError]);
 
     function onChange(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -274,9 +296,9 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
             const table = foundControl.control as TableProps;
             table.controls.forEach(control => {
                 // set default values
-                if(control.type == 'number') {
+                if (control.type === 'number') {
                     control.value.push("0")
-                } else if(control.type == 'money') {
+                } else if (control.type === 'money') {
                     control.value.push("0,00")
                 } else {
                     control.value.push("")
@@ -349,7 +371,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                                 : null
                                         }
                                         <Col className="p-0">
-                                            <Form ref={formRef} onSubmit={runAction} onChange={onChange}>
+                                            <Form ref={formRef} onSubmit={runAction} onChange={onChange} noValidate>
                                                 <Modal.Body>
 
                                                     <PropertyPage propertyPage={propertyPage}
