@@ -21,7 +21,7 @@ import {Button, OverlayTrigger, Table, Tooltip} from "react-bootstrap";
 import axios from "axios";
 import {useEventContext, useEventListener} from "../event/EventContext";
 import {ListItemDeletedEventData} from "../event/EventReducer";
-import {blob2Json, processDownload} from "../misc/Misc";
+import {blob2Json, processDownload, resource2TypeName} from "../misc/Misc";
 import ConfirmationModal from "../modal/ConfirmationModal";
 import AdvancedModal from "../modal/AdvancedModal";
 import {DefaultConcreteWidgetProps} from "./Widget";
@@ -180,12 +180,14 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                             (<tr key={row.id}>
                                 {getValues(row.values)}
                                 <td>
-                                    <OverlayTrigger placement="bottom" overlay={tooltip('Edit ' + listWidgetData.resource)}>
+                                    <OverlayTrigger placement="bottom"
+                                                    overlay={tooltip('Edit ' + resource2TypeName(listWidgetData.resource))}>
                                         <Button variant="" value={row.id} className="bi bi-pencil-fill" onClick={() => handleEditModalShow(row.id)}></Button>
                                     </OverlayTrigger>
                                 </td>
                                 <td>
-                                    <OverlayTrigger placement="bottom" overlay={tooltip('Delete ' + listWidgetData.resource)}>
+                                    <OverlayTrigger placement="bottom"
+                                                    overlay={tooltip('Delete ' + resource2TypeName(listWidgetData.resource))}>
                                         <Button variant="" value={row.id} className="bi bi-trash-fill" onClick={() => handleDeleteModalShow(row.id)}/>
                                     </OverlayTrigger>
                                 </td>

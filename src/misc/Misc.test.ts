@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {getPropertyControl} from "./Misc";
+import {getPropertyControl, resource2TypeName} from "./Misc";
 import testPropertyPage from "./test/property-page.json";
 
 function controlFinderTest(searchedProperty: string, expectedControl: any, expectedPath: string|undefined) {
@@ -160,4 +160,9 @@ test('check whole table', () => {
 
 test('check table property with index out of values range', () => {
     controlFinderTest("positions[1].unitPrice", undefined, undefined);
+});
+
+test('resource to type name conversion', () => {
+    expect(resource2TypeName("test")).toEqual("Test");
+    expect(resource2TypeName("test-resource")).toEqual("Test resource");
 });
