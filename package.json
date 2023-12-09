@@ -19,7 +19,7 @@
     "inputmask": "^5.0.8",
     "jstree": "^3.3.15",
     "react": "^18.2.0",
-    "react-bootstrap": "^2.9.0",
+    "react-bootstrap": "^2.9.1",
     "react-dom": "^18.2.0",
     "react-helmet": "^6.1.0",
     "react-scripts": "5.0.1",

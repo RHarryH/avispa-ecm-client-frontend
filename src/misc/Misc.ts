@@ -124,6 +124,12 @@ export const toKebabCase = (str: string) =>
         ?.map((x) => x.toLowerCase())
         .join("-");
 
+export const resource2TypeName = (resource: string) =>
+    capitalizeFirstLetter(resource.replace("-", " "))
+
+function capitalizeFirstLetter(string: string) {
+    return string.charAt(0).toUpperCase() + string.slice(1);
+}
 
 export function blob2Json(responseData: any): RestError {
     const isJsonBlob = (data: any) => data instanceof Blob && data.type === "application/json";
