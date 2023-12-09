@@ -23,7 +23,7 @@ import React, {ChangeEventHandler} from "react";
 interface RadioProps {
     radio: ComboRadio;
     property: HTMLProperty;
-    onChange: ChangeEventHandler<HTMLInputElement>;
+    onChange?: ChangeEventHandler<HTMLInputElement>;
 }
 
 function RadioControl({radio, property, onChange}: RadioProps) {
