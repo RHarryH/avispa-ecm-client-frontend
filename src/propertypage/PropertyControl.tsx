@@ -83,7 +83,8 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             const money = control as Money;
             return (
                 <InputGroup>
-                    <MaskedFormControl type="text" id={id} name={name} defaultValue={value} required={money.required}/>
+                    <MaskedFormControl type="text" id={id} name={name} defaultValue={value} required={money.required}
+                                       money/>
                     <InputGroup.Text>{money.currency}</InputGroup.Text>
                 </InputGroup>
             );

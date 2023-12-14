@@ -25,6 +25,7 @@ type BootstrapComponentProps<As extends React.ElementType, P> = ReplaceProps<As,
 
 //our extended button properties
 type MaskedFormControlProps = {
+    money?: boolean;
     //any new properties we want to add go here
 } & FormControlProps
 
@@ -57,7 +58,7 @@ export default function MaskedFormControl(props: MaskedFormControlProperties) {
         if(ref.current) {
             if (props.pattern) {
                 Inputmask({"regex": props.pattern}).mask(ref.current)
-            } else {
+            } else if (props.money) {
                 Inputmask(currencyAlias).mask(ref.current)
             }
         }
