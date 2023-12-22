@@ -46,15 +46,7 @@ function RepositoryWidget({onError}: DefaultConcreteWidgetProps) {
         });
     });
 
-    useEffect(() => {
-        return fetchData();
-    }, []);
-
-    const reloadData = useCallback(() => {
-        return fetchData();
-    }, []);
-
-    function fetchData() {
+    const fetchData = useCallback(() => {
         axios.get<DirectoryNode[]>('/directory')
             .then(response => {
                 const folderHierarchy = response.data;
@@ -67,7 +59,15 @@ function RepositoryWidget({onError}: DefaultConcreteWidgetProps) {
                     console.error(error.message);
                 }
             })
-    }
+    }, [onError]);
+
+    useEffect(() => {
+        fetchData();
+    }, [fetchData]);
+
+    const reloadData = useCallback(() => {
+        fetchData();
+    }, [fetchData]);
 
     const exportData = useCallback(() => {
         axios.get('/directory/export', {responseType: 'blob'})
@@ -89,7 +89,7 @@ function RepositoryWidget({onError}: DefaultConcreteWidgetProps) {
                     }
                 });
             })
-    }, []);
+    }, [publishEvent]);
 
     return (
         <Row className="row-cols-1 py-3">
