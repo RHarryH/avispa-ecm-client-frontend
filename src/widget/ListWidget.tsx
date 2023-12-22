@@ -95,7 +95,7 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
         reloadData();
     });
 
-    function fetchData() {
+    const fetchData = useCallback(() => {
         axios.get<any>('/widget/list-widget/' + configuration)
             .then(response => {
                 const widgetData = response.data;
@@ -109,15 +109,15 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                     console.error(error.message);
                 }
             })
-    }
+    }, [configuration, onError]);
 
     useEffect(() => {
-        return fetchData();
-    }, []);
+        fetchData();
+    }, [fetchData]);
 
     const reloadData = useCallback(() => {
-        return fetchData();
-    }, []);
+        fetchData();
+    }, [fetchData]);
 
     const tooltip = (message:string) => (
         <Tooltip id="tooltip">
@@ -131,8 +131,8 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                 processDownload(response);
             })
             .catch(async error => {
-                const responseData = await error.response.data;
-                const responseJson = blob2Json(responseData);
+                const responseData = await error?.response?.data;
+                const responseJson = responseData ? blob2Json(responseData) : {message: "Unknown"};
 
                 publishEvent({
                     type: "ERROR_EVENT",
@@ -140,12 +140,12 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                         id: rowId,
                         notification: {
                             type: 'error',
-                            message: "Can't download rendition" + (error.response.data ? ' Reason: ' + responseJson.message : '')
+                            message: "Can't download rendition. Reason: " + responseJson.message
                         }
                     }
                 });
             })
-    }, []);
+    }, [publishEvent]);
 
     return (
     <div className="py-3">
