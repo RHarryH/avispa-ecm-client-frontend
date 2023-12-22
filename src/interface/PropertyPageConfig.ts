@@ -29,6 +29,7 @@ export interface HTMLProperty {
 }
 
 export interface Control {
+    id: string;
     type: string;
     conditions?: Conditions;
 }
@@ -105,6 +106,7 @@ export interface TabsProps extends Control {
 }
 
 interface TabProps {
+    id: string;
     name: string;
     controls: Control[];
 }

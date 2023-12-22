@@ -107,11 +107,15 @@ function Section({location, widgets}:SectionProps){
                     aria-label={ariaLabel}
                 >
                     {
-                        widgets.map(widget => (
-                            <Tab eventKey={getTabKey(widget)} title={widget.label}>
-                                <Widget label={widget.label} type={widget.type} configuration={widget.configuration}></Widget>
-                            </Tab>
-                        ))
+                        widgets.map(widget => {
+                            const tabKey = getTabKey(widget);
+                            return (
+                                <Tab key={tabKey} eventKey={tabKey} title={widget.label}>
+                                    <Widget label={widget.label} type={widget.type}
+                                            configuration={widget.configuration}></Widget>
+                                </Tab>
+                            );
+                        })
                     }
                 </Tabs>
             </Col>

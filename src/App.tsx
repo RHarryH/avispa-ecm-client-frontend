@@ -108,8 +108,8 @@ function App() {
                                     <Row>
                                         {
                                             appData.layout?.sections.map(section => {
-                                                return (<Section location={section.location}
-                                                                 widgets={section.widgets}></Section>);
+                                                return <Section key={section.location} location={section.location}
+                                                                widgets={section.widgets}></Section>;
                                             })
                                         }
                                     </Row>

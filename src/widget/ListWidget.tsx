@@ -157,7 +157,7 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                     {
                         listWidgetData.headers
                             .filter(header => header !== "pdfRenditionAvailable")
-                            .map((header, index) => (<th key={index} scope="col">{header}</th>))
+                            .map(header => (<th key={crypto.randomUUID()} scope="col">{header}</th>))
                     }
                     <th scope="col">Edit</th>
                     <th scope="col">Delete</th>

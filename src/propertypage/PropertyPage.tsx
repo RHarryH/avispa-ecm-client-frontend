@@ -197,7 +197,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                         <Tabs defaultActiveKey={toKebabCase(tabs.tabs[0].name)}>
                             {
                                 tabs.tabs.map(tab => (
-                                    <Tab eventKey={toKebabCase(tab.name)}
+                                    <Tab key={tab.id} eventKey={toKebabCase(tab.name)}
                                          className="rounded-bottom border-bottom border-start border-end p-3"
                                          title={tab.name}>
                                         {getControls(tab.controls)}
