@@ -160,13 +160,13 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
         switch (control.type) {
             case 'label':
                 const label = control as Label;
-                return (<h3 className="col-sm-12">{label.expression}</h3>);
+                return (<h3 key={label.id} className="col-sm-12">{label.expression}</h3>);
             case 'separator':
-                return (<hr/>);
+                return (<hr key={control.id}/>);
             case 'columns': {
                 const column = control as Columns;
                 return (
-                    <Row>
+                    <Row key={column.id}>
                         {getColumn(column)}
                     </Row>
                 );
@@ -175,7 +175,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                 const group = control as Group;
                 const margin = notLast ? 'mb-3' : '';
                 return (
-                    <fieldset className={`border row mx-0  ${margin} ${visible}`}>
+                    <fieldset key={group.id} className={`border row mx-0  ${margin} ${visible}`}>
                         <legend style={{
                             float: "initial",
                             width: "initial"
@@ -188,13 +188,14 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
             }
             case 'table':
                 const table = control as TableProps;
-                return <TableControl visible={visible} table={table} readonly={propertyPage.readonly} onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
+                return <TableControl key={table.id} visible={visible} table={table} readonly={propertyPage.readonly}
+                                     onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
             case 'tabs': {
                 const tabs = control as TabsProps;
                 const margin = notLast ? 'mb-3' : '';
                 return (
                     <div className={`${margin} ${visible}`}>
-                        <Tabs defaultActiveKey={toKebabCase(tabs.tabs[0].name)}>
+                        <Tabs key={tabs.id} defaultActiveKey={toKebabCase(tabs.tabs[0].name)}>
                             {
                                 tabs.tabs.map(tab => (
                                     <Tab key={tab.id} eventKey={toKebabCase(tab.name)}
@@ -211,7 +212,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
             default: {
                 const margin = notLast ? 'mb-3' : '';
                 return (
-                    <Row as={control.type === 'radio' ? 'fieldset' : 'div'}
+                    <Row key={control.id} as={control.type === 'radio' ? 'fieldset' : 'div'}
                          className={`${margin} ${visible}`}>
                         {
                             isPropertyControl(control) ?
@@ -232,7 +233,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
     }
 
     function getColumnControl(control: Control, notLast: boolean, controlsNum: number = 1) {
-        return <Col>{getControl(control, notLast, controlsNum)}</Col>;
+        return <Col key={control.id}>{getControl(control, notLast, controlsNum)}</Col>;
     }
 
     function isPropertyControl(control: Control): control is PropertyControlProps {

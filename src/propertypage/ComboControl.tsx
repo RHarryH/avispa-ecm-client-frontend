@@ -30,7 +30,7 @@ function ComboControl({combo, property, onChange}: ComboProps) {
     function getComboOptions(values: Map<string, string>) {
         const array = [];
         for (let [key, value] of values) {
-            array.push(<option value={key}>{value}</option>);
+            array.push(<option key={key} value={key}>{value}</option>);
         }
 
         return <>{array}</>;
