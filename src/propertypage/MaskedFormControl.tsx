@@ -65,5 +65,6 @@ export default function MaskedFormControl(props: MaskedFormControlProperties) {
     }, [props.pattern, props.money]);
 
     //return <FormControl ref={withMask("A", {"regex": props.pattern})} {...props}/>
-    return <FormControl ref={ref} {...props}/>
+    const {money, ...formProps} = props; // exclude money from props for FormControl
+    return <FormControl ref={ref} {...formProps}/>
 }

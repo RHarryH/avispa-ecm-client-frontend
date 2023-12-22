@@ -60,7 +60,7 @@ function Header({brand, menu}:HeaderProps) {
 
     function createSubMenu(label:string, items:MenuItem[], drop:DropDirection = "down") {
         return (
-            <NavDropdown title={label} id={label} drop={drop}>
+            <NavDropdown key={crypto.randomUUID()} title={label} id={label} drop={drop}>
                 {
                     items.map(item => createSubItem(item))
                 }
@@ -72,7 +72,8 @@ function Header({brand, menu}:HeaderProps) {
         if(subItem.items?.length) {
             return createSubMenu(subItem.label, subItem.items, "end");
         } else {
-            return (<NavDropdown.Item onClick={() => handleModalShow(subItem.action)}>{subItem.label}</NavDropdown.Item>)
+            return (<NavDropdown.Item key={crypto.randomUUID()}
+                                      onClick={() => handleModalShow(subItem.action)}>{subItem.label}</NavDropdown.Item>)
         }
     }
 

@@ -34,7 +34,7 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved, visible}: Tabl
         let array = [];
         for(let i = 0; i < table.size; i++) {
             array.push(
-                <tr>
+                <tr key={i}>
                     <th className="row-count align-middle" scope="col">
                         {i + 1}
                     </th>
