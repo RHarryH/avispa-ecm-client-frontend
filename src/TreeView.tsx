@@ -36,75 +36,79 @@ function TreeView({treeData}:TreeViewProps) {
             const tree = $(treeReference).jstree(true);
             if(tree) {
                 const settings = tree.settings;
-                if(settings) {
+                if (settings) {
                     settings.core.data = treeData;
                 }
                 tree.refresh();
             } else {
-                $(treeReference).jstree(
-                    {
-                        "core": {
-                            "multiple": false,
-                            "themes": {"stripes": true, "dots": false, "variant": "large"}
+                const options: JSTreeStaticDefaults = {
+                    core: {
+                        multiple: false,
+                        themes: {stripes: true, dots: false, variant: "large"},
+                        data: treeData,
+                        error: () => {
+                            console.log("ERROR")
+                        }
+                    },
+                    types: {
+                        "#": {
+                            "max_children": 1,
+                            //"max_depth" : 4,
+                            "valid_children": ["root"]
                         },
-                        "types": {
-                            "#": {
-                                "max_children": 1,
-                                //"max_depth" : 4,
-                                "valid_children": ["root"]
-                            },
-                            "root": {
-                                "icon": "bi bi-archive-fill"
-                            },
-                            "folder": {
-                                "icon": "bi bi-folder-fill"
-                            },
-                            "default": { // unknown file type
-                                "icon": "bi bi-file-earmark",
-                                "valid_children": []
-                            },
-                            "pdf": {
-                                "icon": "bi bi-file-earmark-pdf",
-                                "valid_children": []
-                            },
-                            "odt": {
-                                "icon": "bi bi-file-richtext",
-                                "valid_children": []
-                            },
-                            "rtf": {
-                                "icon": "bi bi-file-richtext",
-                                "valid_children": []
-                            },
-                            "doc": {
-                                "icon": "bi bi-file-earmark-word",
-                                "valid_children": []
-                            },
-                            "docx": {
-                                "icon": "bi bi-file-earmark-word",
-                                "valid_children": []
-                            },
-                            "csv": {
-                                "icon": "bi bi-file-earmark-text",
-                                "valid_children": []
-                            },
-                            "txt": {
-                                "icon": "bi bi-file-earmark-zip",
-                                "valid_children": []
-                            },
-                            "zip": {
-                                "icon": "bi bi-file-earmark-zip",
-                                "valid_children": []
-                            },
-                            "rar": {
-                                "icon": "bi bi-file-earmark-zip",
-                                "valid_children": []
-                            }
+                        "root": {
+                            "icon": "bi bi-archive-fill"
                         },
-                        "plugins": [
-                            "types", "sort"
-                        ]
-                    }
-                );
+                        "folder": {
+                            "icon": "bi bi-folder-fill"
+                        },
+                        "default": { // unknown file type
+                            "icon": "bi bi-file-earmark",
+                            "valid_children": []
+                        },
+                        "pdf": {
+                            "icon": "bi bi-file-earmark-pdf",
+                            "valid_children": []
+                        },
+                        "odt": {
+                            "icon": "bi bi-file-richtext",
+                            "valid_children": []
+                        },
+                        "rtf": {
+                            "icon": "bi bi-file-richtext",
+                            "valid_children": []
+                        },
+                        "doc": {
+                            "icon": "bi bi-file-earmark-word",
+                            "valid_children": []
+                        },
+                        "docx": {
+                            "icon": "bi bi-file-earmark-word",
+                            "valid_children": []
+                        },
+                        "csv": {
+                            "icon": "bi bi-file-earmark-text",
+                            "valid_children": []
+                        },
+                        "txt": {
+                            "icon": "bi bi-file-earmark-zip",
+                            "valid_children": []
+                        },
+                        "zip": {
+                            "icon": "bi bi-file-earmark-zip",
+                            "valid_children": []
+                        },
+                        "rar": {
+                            "icon": "bi bi-file-earmark-zip",
+                            "valid_children": []
+                        }
+                    },
+                    "plugins": [
+                        "types", "sort"
+                    ]
+                };
+
+                $(treeReference).jstree(options);
             }
         }
     }, [treeData]);

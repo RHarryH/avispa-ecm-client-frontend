@@ -62,7 +62,7 @@ export default function MaskedFormControl(props: MaskedFormControlProperties) {
                 Inputmask(currencyAlias).mask(ref.current)
             }
         }
-    }, []);
+    }, [props.pattern, props.money]);
 
     //return <FormControl ref={withMask("A", {"regex": props.pattern})} {...props}/>
     return <FormControl ref={ref} {...props}/>

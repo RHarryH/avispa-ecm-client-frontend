@@ -195,7 +195,7 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                                     listWidgetData.isDocument ?
                                         (<td>
                                             {
-                                                Object.entries(row.values).filter(([key, value]) => key === "pdfRenditionAvailable" && value == "true").length ?
+                                                Object.entries(row.values).filter(([key, value]) => key === "pdfRenditionAvailable" && value === "true").length ?
                                                     <OverlayTrigger placement="bottom" overlay={tooltip("Download PDF rendition")}>
                                                         <Button variant="" value={row.id}
                                                                 className="bi bi-file-earmark-arrow-down-fill"

@@ -37,7 +37,7 @@ function App() {
 
     const onError = useCallback((error: RestError | undefined) => {
         setError(error);
-    }, []);
+    }, [error]);
 
     const [appData, setAppData] = useState<AppProps>({
         fullName: "Avispa ECM Client",
@@ -60,18 +60,20 @@ function App() {
     });
 
     useEffect(() => {
-        axios.get<AppProps>('/client')
-            .then(res => {
-                const clientData = res.data;
-                setAppData(clientData);
-            })
-            .catch(error => {
-                if (onError) {
-                    onError(error);
-                } else {
-                    console.error(error.message);
-                }
-            })
+        if (!error) {
+            axios.get<AppProps>('/client')
+                .then(res => {
+                    const clientData = res.data;
+                    setAppData(clientData);
+                })
+                .catch(error => {
+                    if (onError) {
+                        onError(error);
+                    } else {
+                        console.error(error.message);
+                    }
+                })
+        }
     }, [error]);
 
     const [state, publishEvent ] = useReducer(eventReducer, {type: null});
@@ -86,8 +88,8 @@ function App() {
                 <meta charSet="utf-8" />
                 <title>{appData.fullName}</title>
                 <meta name="description" content="Avispa μF - an application for generating simple invoices" />
-                <script src="http://localhost:8081/custom/ecm-custom-validation.js" type="text/javascript"/>
-                {/* TODO: localhost */}
+                <script src={process.env.REACT_APP_BASE_URL + "/custom/ecm-custom-validation.js"}
+                        type="text/javascript"/>
             </Helmet>
 
             <header>
