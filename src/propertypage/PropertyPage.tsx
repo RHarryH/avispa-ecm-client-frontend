@@ -266,7 +266,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
     }
 
     return (
-        <fieldset disabled={propertyPage.readonly}>
+        <fieldset disabled={propertyPage.readonly} key={crypto.randomUUID()}>
             {
                 getControls(propertyPage.controls)
             }

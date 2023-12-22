@@ -28,7 +28,8 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
 import axios from "axios";
 
-axios.defaults.baseURL = 'http://localhost:8081/v1';
+const API_URL = process.env.REACT_APP_BASE_URL + '/v1';
+axios.defaults.baseURL = API_URL;
 
 const root = ReactDOM.createRoot(
   document.getElementById('root') as HTMLElement

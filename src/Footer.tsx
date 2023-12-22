@@ -27,7 +27,7 @@ interface Versions {
 function Footer({versions}:Versions) {
     function getFooterLine() {
         let value = '';
-        versions.map(version => (
+        versions.forEach(version => (
             value += version.componentName + ' v' + version.number + ', '
         ))
         return value + '©' + new Date().getFullYear() + ' ';
