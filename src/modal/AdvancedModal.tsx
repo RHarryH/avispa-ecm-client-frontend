@@ -362,7 +362,8 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                                     <ListGroup variant="flush">
                                                         {
                                                             modalData.pages.map((page, index) => (
-                                                                <ListGroupItem active={pageNumber === index}
+                                                                <ListGroupItem key={crypto.randomUUID()}
+                                                                               active={pageNumber === index}
                                                                                aria-current={pageNumber === index}>{page.name}</ListGroupItem>
                                                             ))
                                                         }

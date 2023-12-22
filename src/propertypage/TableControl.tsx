@@ -40,7 +40,7 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved, visible}: Tabl
                     </th>
                     {
                         table.controls.map(control=> (
-                            <td>
+                            <td key={control.id}>
                                 <PropertyControl control={control} rootPropertyName={table.property} valueIndex={i}/>
                             </td>
                         ))
@@ -68,7 +68,7 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved, visible}: Tabl
                 <th scope="col">#</th>
                 {
                     table.controls.map(control => (
-                        (<th scope="col">{control.label}</th>)
+                        (<th key={control.id} scope="col">{control.label}</th>)
                     ))
                 }
                 {!readonly ? <th scope="col">Delete</th> : null}
