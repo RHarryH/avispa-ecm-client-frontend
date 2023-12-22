@@ -31,13 +31,15 @@ import {eventReducer} from "./event/EventReducer";
 import Notifications from "./notification/Notifications";
 import {RestError} from "./widget/Widget";
 import ErrorPage from "./misc/ErrorPage";
+import LoadingScreen from "./LoadingScreen";
 
 function App() {
+    const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<RestError | undefined>(undefined);
 
     const onError = useCallback((error: RestError | undefined) => {
         setError(error);
-    }, [error]);
+    }, []);
 
     const [appData, setAppData] = useState<AppProps>({
         fullName: "Avispa ECM Client",
@@ -61,6 +63,7 @@ function App() {
 
     useEffect(() => {
         if (!error) {
+            setIsLoading(true);
             axios.get<AppProps>('/client')
                 .then(res => {
                     const clientData = res.data;
@@ -73,8 +76,11 @@ function App() {
                         console.error(error.message);
                     }
                 })
+                .finally(() => {
+                    setIsLoading(false);
+                });
         }
-    }, [error]);
+    }, [onError, error]);
 
     const [state, publishEvent ] = useReducer(eventReducer, {type: null});
 
@@ -101,9 +107,11 @@ function App() {
             <main>
                 <Container fluid>
                     {
-                        error ? (<ErrorPage error={error} displayMessage="Something went wrong! Please try again."
-                                            buttonMessage="Reload website" onError={onError}></ErrorPage>) :
-                            (
+                        isLoading ?
+                            <LoadingScreen/>
+                            : (error ?
+                                    <ErrorPage error={error} displayMessage="Something went wrong! Please try again."
+                                               buttonMessage="Reload website" onError={onError}></ErrorPage> :
                                 <EventContext.Provider value={eventProviderState}>
                                     <Row>
                                         {

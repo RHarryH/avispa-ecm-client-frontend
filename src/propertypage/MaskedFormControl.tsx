@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useMemo, useRef} from "react";
 import {FormControl, FormControlProps} from "react-bootstrap";
 import {BsPrefixProps, ReplaceProps} from "react-bootstrap/helpers";
 
@@ -37,22 +37,24 @@ export default function MaskedFormControl(props: MaskedFormControlProperties) {
     const ref = useRef<HTMLElement>(null);
 
     // /*"greedy": true*/
-    const currencyAlias = {
-        alias: "numeric",
-        numericInput: true,
-        min: 0,
-        max: 9999999.99,
-        groupSeparator: '\xa0', // non-breaking space
-        radixPoint: ',',
-        autoGroup: true,
-        autoUnmask: true,
-        digits: 2,
-        digitsOptional: false,
-        allowPlus: false,
-        allowMinus: false,
-        removeMaskOnSubmit: true,
-        greedy: true
-    };
+    const currencyAlias = useMemo(() => {
+        return {
+            alias: "numeric",
+            numericInput: true,
+            min: 0,
+            max: 9999999.99,
+            groupSeparator: '\xa0', // non-breaking space
+            radixPoint: ',',
+            autoGroup: true,
+            autoUnmask: true,
+            digits: 2,
+            digitsOptional: false,
+            allowPlus: false,
+            allowMinus: false,
+            removeMaskOnSubmit: true,
+            greedy: true
+        }
+    }, []);
 
     useEffect(() => {
         if(ref.current) {
@@ -62,7 +64,7 @@ export default function MaskedFormControl(props: MaskedFormControlProperties) {
                 Inputmask(currencyAlias).mask(ref.current)
             }
         }
-    }, [props.pattern, props.money]);
+    }, [props.pattern, props.money, currencyAlias]);
 
     //return <FormControl ref={withMask("A", {"regex": props.pattern})} {...props}/>
     const {money, ...formProps} = props; // exclude money from props for FormControl

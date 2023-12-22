@@ -17,18 +17,7 @@
  */
 
 import React, {ElementRef, useCallback, useEffect, useRef, useState} from "react";
-import {
-    Button,
-    Col,
-    Form,
-    ListGroup,
-    ListGroupItem,
-    Modal,
-    OverlayTrigger,
-    Row,
-    Spinner,
-    Tooltip
-} from "react-bootstrap";
+import {Button, Col, Form, ListGroup, ListGroupItem, Modal, OverlayTrigger, Row, Tooltip} from "react-bootstrap";
 import axios, {Method} from "axios";
 import {useEventContext} from "../event/EventContext";
 import {EventType} from "../event/EventReducer";
@@ -39,6 +28,7 @@ import {getPropertyControl} from "../misc/Misc";
 import ErrorPage from "../misc/ErrorPage";
 import {RestError} from "../widget/Widget";
 import {runCustomValidation} from "../misc/Validation";
+import LoadingScreen from "../LoadingScreen";
 
 export type ModalType = "ADD" | "UPDATE" | "CLONE";
 type ModalPageType = "SELECT_SOURCE" | "PROPERTIES";
@@ -104,6 +94,13 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     const [pageNumber, setPageNumber] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
 
+    const close = useCallback(() => {
+        setModalContext([]);
+        setPageNumber(0);
+        setError(undefined);
+        onClose();
+    }, [onClose]);
+
     useEffect(() => {
         if(show) {
             setIsLoading(true);
@@ -133,14 +130,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                     setIsLoading(false);
                 });
         }
-    }, [show]);
-
-    const close = useCallback(() => {
-        setModalContext([]);
-        setPageNumber(0);
-        setError(undefined);
-        onClose();
-    }, [show]);
+    }, [show, action, close, publishEvent]);
 
     const reset = useCallback(() => {
         setPropertyPage(structuredClone(initPropertyPage));
@@ -207,7 +197,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                  })
             })
         }
-    }, [modalData, close, validateForm]);
+    }, [modalData, close, validateForm, publishEvent]);
 
     const loadPage = useCallback((newPageNumber: number) => {
         if(show && formRef.current && (pageNumber > 0 || pageNumber < modalData.pages.length)) {
@@ -339,13 +329,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                     <Row>
                         {
                             isLoading ?
-                                <Col>
-                                    <Modal.Body className="d-flex justify-content-center">
-                                        <Spinner animation="border" role="status">
-                                            <span className="visually-hidden">Loading...</span>
-                                        </Spinner>
-                                    </Modal.Body>
-                                </Col>
+                                <LoadingScreen/>
                                 : (error ?
                                     <Col>
                                         <Modal.Body>
