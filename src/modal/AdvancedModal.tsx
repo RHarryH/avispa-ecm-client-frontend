@@ -93,6 +93,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     const [modalContext, setModalContext] = useState<FormData[]>([]);
     const [pageNumber, setPageNumber] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
+    const [isProcessing, setIsProcessing] = useState(false);
 
     const close = useCallback(() => {
         setModalContext([]);
@@ -154,6 +155,8 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         if (modalData.action) {
             const form = event.currentTarget;
 
+            setIsProcessing(true)
+
             // validate full form
             validateForm(form);
             if (!form.reportValidity()) {
@@ -196,6 +199,9 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                      }
                  })
             })
+                .finally(() => {
+                    setIsProcessing(false)
+                })
         }
     }, [modalData, close, validateForm, publishEvent]);
 
@@ -367,24 +373,27 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                                     {
                                                         modalData.pages.length > 1 && pageNumber > 0 ?
                                                             <Button variant="primary" className="bi bi-caret-left-fill"
+                                                                    disabled={isProcessing}
                                                                     onClick={() => loadPage(pageNumber - 1)}> Previous</Button> :
                                                             null
                                                     }
                                                     <OverlayTrigger placement="bottom"
                                                                     overlay={tooltip('Resets the content of this page')}>
-                                                        <Button type="reset" variant="secondary"
+                                                        <Button type="reset" variant="secondary" disabled={isProcessing}
                                                                 onClick={reset}>Reset</Button>
                                                     </OverlayTrigger>
-                                                    <Button variant="danger" onClick={onClose}>Reject</Button>
+                                                    <Button variant="danger" disabled={isProcessing}
+                                                            onClick={onClose}>Reject</Button>
                                                     {
                                                         pageNumber === modalData.pages.length - 1 ?
-                                                            <Button type="submit"
+                                                            <Button type="submit" disabled={isProcessing}
                                                                     variant="primary">{modalData.action?.buttonValue ?? "Unknown action"}</Button>
                                                             : null
                                                     }
                                                     {
                                                         modalData.pages.length > 1 && (pageNumber < modalData.pages.length - 1) ?
                                                             <Button variant="primary" className="bi bi-caret-right-fill"
+                                                                    disabled={isProcessing}
                                                                     onClick={() => loadPage(pageNumber + 1)}> Next</Button> :
                                                             null
                                                     }
