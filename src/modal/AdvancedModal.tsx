@@ -96,6 +96,10 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     const [isProcessing, setIsProcessing] = useState(false);
 
     const close = useCallback(() => {
+        if (isProcessing) { // don't allow closing dialog when request is processing
+            return;
+        }
+
         setModalContext([]);
         setPageNumber(0);
         setError(undefined);
@@ -155,14 +159,14 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         if (modalData.action) {
             const form = event.currentTarget;
 
-            setIsProcessing(true)
-
             // validate full form
             validateForm(form);
             if (!form.reportValidity()) {
                 event.stopPropagation();
                 return;
             }
+
+            setIsProcessing(true)
 
             const action = modalData.action;
 
@@ -327,8 +331,8 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
 
     return (
         <>
-            <Modal show={show} on onHide={close} centered size="xl">
-                <Modal.Header closeButton>
+            <Modal show={show} onHide={close} centered size="xl">
+                <Modal.Header closeButton={!isProcessing}>
                     <Modal.Title>{error ? "Error page" : modalData.title}</Modal.Title>
                 </Modal.Header>
                 <Container>
@@ -364,7 +368,6 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                         <Col className="p-0">
                                             <Form ref={formRef} onSubmit={runAction} onChange={onChange} noValidate>
                                                 <Modal.Body>
-
                                                     <PropertyPage propertyPage={propertyPage}
                                                                   onTableRowAdded={onTableRowAdded}
                                                                   onTableRowRemoved={onTableRowRemoved}></PropertyPage>
