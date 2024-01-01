@@ -26,10 +26,9 @@ interface TableControlComponentProps {
     readonly: boolean;
     onRowAdded?: (propertyName: string) => void;
     onRowRemoved?: (propertyName: string, index: number) => void;
-    visible: string;
 }
 
-function TableControl({table, readonly, onRowAdded, onRowRemoved, visible}: TableControlComponentProps) {
+function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlComponentProps) {
     function getTableControls(table: TableProps, readonly: boolean) {
         let array = [];
         for(let i = 0; i < table.size; i++) {
@@ -60,7 +59,7 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved, visible}: Tabl
     }
 
     return (
-    <div className={`mb-3 ${visible}`}>
+        <div className={`mb-3`}>
         <Table size="sm" className="caption-top">
             <caption className="text-black">{table.label + (table.required ? '*' : '')}</caption>
             <thead className="table-light">
