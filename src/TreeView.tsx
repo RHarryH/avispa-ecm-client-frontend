@@ -18,15 +18,15 @@ function TreeView({treeData}:TreeViewProps) {
 
         if(treeReference) {
             $(treeReference).on("changed.jstree", function (e, data) {
-                if(data.action === "select_node") {
+                if (data.action === "select_node") {
                     publishEvent({
                         type: "REPOSITORY_ITEM_SELECTED",
                         payload: {
                             id: data.node.id,
-                            focus: true
+                            focus: data.event?.type === 'click'
                         }
                     })
-                } else if(data.action === "deselect_node") { // do not pass id
+                } else if (data.action === "deselect_node") { // do not pass id
                     publishEvent({
                         type: "REPOSITORY_ITEM_DESELECTED"
                     })
