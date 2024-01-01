@@ -152,9 +152,8 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
     }
 
     function getControl(control: Control, notLast: boolean, controlsNum: number = 1) {
-        let visible = '';
         if(control.conditions?.visibility && !resolveConditions(control.conditions.visibility)) {
-            visible = 'd-none';
+            return;
         }
 
         switch (control.type) {
@@ -175,7 +174,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                 const group = control as Group;
                 const margin = notLast ? 'mb-3' : '';
                 return (
-                    <fieldset key={group.id} className={`border row mx-0  ${margin} ${visible}`}>
+                    <fieldset key={group.id} className={`border row mx-0  ${margin}`}>
                         <legend style={{
                             float: "initial",
                             width: "initial"
@@ -188,13 +187,13 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
             }
             case 'table':
                 const table = control as TableProps;
-                return <TableControl key={table.id} visible={visible} table={table} readonly={propertyPage.readonly}
+                return <TableControl key={table.id} table={table} readonly={propertyPage.readonly}
                                      onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
             case 'tabs': {
                 const tabs = control as TabsProps;
                 const margin = notLast ? 'mb-3' : '';
                 return (
-                    <div className={`${margin} ${visible}`}>
+                    <div className={`${margin}}`}>
                         <Tabs key={tabs.id} defaultActiveKey={toKebabCase(tabs.tabs[0].name)}>
                             {
                                 tabs.tabs.map(tab => (
@@ -213,7 +212,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                 const margin = notLast ? 'mb-3' : '';
                 return (
                     <Row key={control.id} as={control.type === 'radio' ? 'fieldset' : 'div'}
-                         className={`${margin} ${visible}`}>
+                         className={`${margin}`}>
                         {
                             isPropertyControl(control) ?
                                 getPropertyControlWithLabel(control, controlsNum) :
