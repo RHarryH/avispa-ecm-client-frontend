@@ -80,9 +80,12 @@ function getPropertyControlInternal(searchedProperty: string, controls: Control[
         } else if (control.type === 'tabs') {
             //console.log("Entering from tabs");
             const tabs = control as TabsProps;
-            tabs.tabs.forEach((tab, tabIndex) => {
-                found = getPropertyControlInternal(searchedProperty, tab.controls, jsonPath + '.controls[' + index + '].tab[' + tabIndex + ']');
-            });
+            for (let tabIndex = 0; tabIndex < tabs.tabs.length; tabIndex++) {
+                found = getPropertyControlInternal(searchedProperty, tabs.tabs[tabIndex].controls, jsonPath + '.controls[' + index + '].tab[' + tabIndex + ']');
+                if (found) {
+                    break;
+                }
+            }
         } else if (control.type === 'table') {
             //console.log("Entering from table");
             const table = control as TableProps;
