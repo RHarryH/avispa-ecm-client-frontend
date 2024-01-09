@@ -240,16 +240,27 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
     }
 
     function getPropertyControlWithLabel(control: PropertyControlProps, controlsNum: number) {
+        function getLabel(control: PropertyControlProps, controlsNum: number) {
+            if (control.type === 'checkbox') {
+                return;
+            }
+
+            if (control.type !== 'radio') {
+                return (
+                    <legend
+                        className={"form-label col-form-label pt-0 col-sm-" + (2 * controlsNum)}>{control.label + (control.required ? '*' : '')}</legend>
+                );
+            }
+
+            return getPropertyLabel(control, controlsNum)
+        }
+
         if(control.conditions?.requirement) {
             control.required = resolveConditions(control.conditions.requirement);
         }
 
         return <>
-            {
-                control.type !== 'radio' ?
-                    getPropertyLabel(control, controlsNum) :
-                    <legend className={"form-label col-form-label pt-0 col-sm-" + (2 * controlsNum)}>{control.label + (control.required ? '*' : '')}</legend>
-            }
+            {getLabel(control, controlsNum)}
             <Col>
                 <PropertyControl control={control}/>
             </Col>
