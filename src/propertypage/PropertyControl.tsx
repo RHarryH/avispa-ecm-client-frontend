@@ -18,7 +18,7 @@
 
 import {ComboRadio, Date, Money, Number, PropertyControlProps, Text, TextArea} from "../interface/PropertyPageConfig";
 import ComboControl from "./ComboControl";
-import {FormControl, InputGroup} from "react-bootstrap";
+import {FormCheck, FormControl, InputGroup} from "react-bootstrap";
 import RadioControl from "./RadioControl";
 import React from "react";
 import MaskedFormControl from "./MaskedFormControl";
@@ -60,6 +60,17 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
     const value = getControlValue(control, valueIndex);
 
     switch (control.type) {
+        case 'checkbox':
+            const label = rootPropertyName ? undefined : (control.label + (control.required ? '*' : ''));
+            const ariaLabel = rootPropertyName ? (control.label + " " + (valueIndex + 1)) : undefined;
+            const tableCentered = rootPropertyName ? "d-flex justify-content-center" : undefined;
+            return (
+                <FormCheck type="switch" id={id} name={name} label={label} aria-label={ariaLabel}
+                           className={tableCentered}
+                           required={control.required} defaultValue={value ? value : false}
+                           defaultChecked={value === 'true'}
+                           onChange={(e) => e.target.value = e.target.checked.toString()}/>
+            );
         case 'combo':
             const combo = control as ComboRadio;
             return <ComboControl combo={combo} property={{

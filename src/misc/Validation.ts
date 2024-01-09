@@ -26,7 +26,7 @@ export function runCustomValidation(control: PropertyControlProps, element: HTML
         const customValidation = control.customValidation?.function;
         if (customValidation) {
             let value = element.value;
-            if (control.type == 'money') {
+            if (control.type === 'money') {
                 const radixPoint = Inputmask().mask(element).option('radixPoint');
                 value = value.replace(radixPoint, ".");
             }
