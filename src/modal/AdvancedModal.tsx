@@ -269,8 +269,6 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     }, [modalData, show, pageNumber, modalContext, onError]);
 
     function onChange(event: React.FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-
         const target = event.target as HTMLFormElement;
 
         // update property in the property page
