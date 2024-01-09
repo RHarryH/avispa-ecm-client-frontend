@@ -31,8 +31,12 @@ export function runCustomValidation(control: PropertyControlProps, element: HTML
                 value = value.replace(radixPoint, ".");
             }
 
-            if (!executeFunctionByName(customValidation, window, [value])) {
-                setValidationMessage(control, element);
+            try {
+                if (!executeFunctionByName(customValidation, window, [value])) {
+                    setValidationMessage(control, element);
+                }
+            } catch (e) {
+                element.setCustomValidity((<Error>e).message);
             }
         }
     }
@@ -43,13 +47,18 @@ function executeFunctionByName(functionName: string, context: any, args: any[]):
     let func = namespaces.pop();
 
     if (!func) {
-        return true;
+        throw new Error("Function '" + functionName + "' can't be executed");
     }
 
     for (const element of namespaces) {
         context = context[element];
     }
-    return context[func](...args);
+
+    if (context[func]) {
+        return context[func](...args);
+    } else {
+        throw new Error("Function '" + func + "' can't be executed");
+    }
 }
 
 function setValidationMessage(control: PropertyControlProps, element: EventTarget & (HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement)) {
