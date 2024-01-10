@@ -17,7 +17,7 @@
  */
 
 export interface PropertyPageConfig {
-    readonly: boolean;
+    context: "INSERT" | "EDIT" | "READONLY";
     size: string;
     controls: Control[];
 }
@@ -31,12 +31,17 @@ export interface HTMLProperty {
 export interface Control {
     id: string;
     type: string;
-    conditions?: Conditions;
+    constraints?: Constraints;
 }
 
-interface Conditions {
-    visibility: string;
-    requirement: string;
+interface Constraints {
+    visibility?: Constraint;
+    requirement?: Constraint;
+}
+
+interface Constraint {
+    contexts?: Array<"INSERT" | "EDIT" | "READONLY">;
+    condition?: string;
 }
 
 export interface PropertyControlProps extends Control {
