@@ -84,7 +84,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         ]
     });
     const [propertyPage, setPropertyPage] = useState<PropertyPageConfig>({
-        readonly: false,
+        context: "READONLY",
         size: "small",
         controls: []
     });
@@ -124,7 +124,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                             id: undefined,
                             notification: {
                                 type: 'error',
-                                message: "Can't load modal" + (error.response.data ? ' Reason: ' + error.response.data.message : '')
+                                message: "Can't load modal" + (error.response?.data ? ' Reason: ' + error.response.data.message : '')
                             }
                         }
                     });
@@ -198,7 +198,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                          id: action.id,
                          notification: {
                              type: 'error',
-                             message: action.errorMessage + (error.response.data ? ' Reason: '  + error.response.data.message : '')
+                             message: action.errorMessage + (error.response?.data ? ' Reason: ' + error.response.data.message : '')
                          }
                      }
                  })

@@ -75,7 +75,7 @@ function RepositoryWidget({onError}: DefaultConcreteWidgetProps) {
                 processDownload(response);
             })
             .catch(async error => {
-                const responseData = await error.response.data;
+                const responseData = await error.response?.data;
                 const responseJson = blob2Json(responseData);
 
                 publishEvent({
@@ -84,7 +84,7 @@ function RepositoryWidget({onError}: DefaultConcreteWidgetProps) {
                         id: undefined,
                         notification: {
                             type: 'error',
-                            message: "Can't export data" + (error.response.data ? ' Reason: ' + responseJson.message : '')
+                            message: "Can't export data" + (error.response?.data ? ' Reason: ' + responseJson.message : '')
                         }
                     }
                 });

@@ -46,7 +46,7 @@ function PropertiesWidget() {
                         id: data.id,
                         notification: {
                             type: 'error',
-                            message: "Can't display object" + (error.response.data ? ' Reason: ' + error.response.data.message : '')
+                            message: "Can't display object" + (error.response?.data ? ' Reason: ' + error.response.data.message : '')
                         }
                     }
                 });

@@ -63,7 +63,7 @@ function ConfirmationModal({show, title, message, action, onClose}:ConfirmationM
                         id: action.id,
                         notification: {
                             type: 'error',
-                            message: action.errorMessage + (error.response.data ? ' Reason: '  + error.response.data.message : '')
+                            message: action.errorMessage + (error.response?.data ? ' Reason: ' + error.response.data.message : '')
                         }
                     }
                 })
