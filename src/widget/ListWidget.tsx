@@ -131,7 +131,7 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                 processDownload(response);
             })
             .catch(async error => {
-                const responseData = await error?.response?.data;
+                const responseData = await error.response?.data;
                 const responseJson = responseData ? blob2Json(responseData) : {message: "Unknown"};
 
                 publishEvent({

@@ -152,8 +152,19 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
     }
 
     function getControl(control: Control, notLast: boolean, controlsNum: number = 1) {
-        if(control.conditions?.visibility && !resolveConditions(control.conditions.visibility)) {
-            return;
+        if (control.constraints?.visibility) {
+            const constraint = control.constraints.visibility;
+
+            if (constraint?.contexts) {
+                const contexts = constraint.contexts;
+                if (contexts.length > 0 && !contexts.includes(propertyPage.context)) {
+                    return;
+                }
+            }
+
+            if (constraint?.condition && !resolveConditions(constraint.condition)) {
+                return;
+            }
         }
 
         switch (control.type) {
@@ -187,7 +198,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
             }
             case 'table':
                 const table = control as TableProps;
-                return <TableControl key={table.id} table={table} readonly={propertyPage.readonly}
+                return <TableControl key={table.id} table={table} readonly={propertyPage.context === "READONLY"}
                                      onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
             case 'tabs': {
                 const tabs = control as TabsProps;
@@ -255,8 +266,19 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
             return getPropertyLabel(control, controlsNum)
         }
 
-        if(control.conditions?.requirement) {
-            control.required = resolveConditions(control.conditions.requirement);
+        if (control.constraints?.requirement) {
+            const constraint = control.constraints.requirement;
+
+            if (constraint?.contexts) {
+                const contexts = constraint.contexts;
+                if (contexts.length > 0 && !contexts.includes(propertyPage.context)) {
+                    control.required = true;
+                }
+            }
+
+            if (constraint?.condition) {
+                control.required = resolveConditions(constraint.condition);
+            }
         }
 
         return <>
@@ -277,7 +299,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
     }
 
     return (
-        <fieldset disabled={propertyPage.readonly}>
+        <fieldset disabled={propertyPage.context === "READONLY"}>
             {
                 getControls(propertyPage.controls)
             }
