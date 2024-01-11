@@ -25,6 +25,7 @@ import {blob2Json, processDownload, resource2TypeName} from "../misc/Misc";
 import ConfirmationModal from "../modal/ConfirmationModal";
 import AdvancedModal from "../modal/AdvancedModal";
 import {DefaultConcreteWidgetProps} from "./Widget";
+import Paginator from "./Paginator";
 
 interface ListData {
     id: string;
@@ -36,6 +37,7 @@ interface ListDataProps {
     isDocument: boolean;
     emptyMessage: string;
     headers: string[];
+    pagesNum: number;
 }
 
 interface ListWidgetProps extends DefaultConcreteWidgetProps {
@@ -55,9 +57,12 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
         resource: "",
         isDocument: false,
         emptyMessage: "Empty list",
-        headers: []
+        headers: [],
+        pagesNum: 1
     });
     const [data, setData] = useState<ListData[]>([]);
+
+    const [currentPage, setCurrentPage] = useState<number>(1);
 
     // delete modal
     const [deleteModalProps, setDeleteModalProps] = useState<ModalProps>({
@@ -96,7 +101,7 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
     });
 
     const fetchData = useCallback(() => {
-        axios.get<any>('/widget/list-widget/' + configuration)
+        axios.get<any>('/widget/list-widget/' + configuration + '/' + currentPage)
             .then(response => {
                 const widgetData = response.data;
                 setListWidgetData(widgetData);
@@ -109,7 +114,7 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                     console.error(error.message);
                 }
             })
-    }, [configuration, onError]);
+    }, [configuration, onError, currentPage]);
 
     useEffect(() => {
         fetchData();
@@ -210,6 +215,8 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
                 }
             </tbody>
         </Table>
+        <Paginator pagesNum={listWidgetData.pagesNum} currentPage={currentPage}
+                   onClick={(pageNumber) => setCurrentPage(pageNumber)}/>
         <AdvancedModal show={editModalProps.show} action={"update/" + listWidgetData.resource + "/" + editModalProps.rowId} onClose={handleEditModalClose}/>
         <ConfirmationModal show={deleteModalProps.show} title="Deletion" message={'Do you really want to delete this ' + listWidgetData.resource} onClose={handleDeleteModalClose} action={{
             id: deleteModalProps.rowId ?? '',
