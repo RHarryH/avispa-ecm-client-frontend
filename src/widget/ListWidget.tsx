@@ -222,8 +222,8 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
             id: deleteModalProps.rowId ?? '',
             method: "delete",
             endpoint: listWidgetData.resource + "/" + deleteModalProps.rowId,
-            successMessage: listWidgetData.resource + ' deleted successfully!',
-            errorMessage: 'Error when deleting ' + listWidgetData.resource + '!',
+            successMessage: resource2TypeName(listWidgetData.resource) + ' deleted successfully!',
+            errorMessage: 'Error when deleting ' + resource2TypeName(listWidgetData.resource) + '!',
             eventType: "LIST_ITEM_DELETED"
         }}/>
     </div>);
