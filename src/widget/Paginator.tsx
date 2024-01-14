@@ -32,11 +32,11 @@ function Paginator({pagesNum, currentPage, onClick}: PaginationProps) {
             const distanceToCurrentPage = Math.abs(i - currentPage);
             if (i === 1 || i === pagesNum || distanceToCurrentPage <= 2) {
                 array.push(
-                    <Pagination.Item active={i === currentPage} onClick={() => onClick(i)}>{i}</Pagination.Item>
+                    <Pagination.Item key={i} active={i === currentPage} onClick={() => onClick(i)}>{i}</Pagination.Item>
                 );
-            } else if (distanceToCurrentPage == 3) {
+            } else if (distanceToCurrentPage === 3) {
                 array.push(
-                    <Pagination.Ellipsis/>
+                    <Pagination.Ellipsis key={crypto.randomUUID()}/>
                 );
             }
         }
