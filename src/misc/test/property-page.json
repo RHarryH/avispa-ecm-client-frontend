@@ -11,8 +11,6 @@
       "property": "seller",
       "value": "",
       "required": true,
-      "typeName": "Customer",
-      "sortByLabel": false,
       "options": {
         "e4f38c78-74ec-49f6-b6c6-effe4ac633b4": "AVISPA SOFTWARE Rafał Hiszpański",
         "1bfb2de1-4aa8-4e0a-a007-878ae91443aa": "ITDS Polska Sp. z o.o.",
@@ -25,8 +23,6 @@
       "property": "buyer",
       "value": "",
       "required": true,
-      "typeName": "Customer",
-      "sortByLabel": false,
       "options": {
         "e4f38c78-74ec-49f6-b6c6-effe4ac633b4": "AVISPA SOFTWARE Rafał Hiszpański",
         "1bfb2de1-4aa8-4e0a-a007-878ae91443aa": "ITDS Polska Sp. z o.o.",
@@ -79,7 +75,6 @@
       "property": "unit",
       "value": [""],
       "required": false,
-      "sortByLabel": true,
       "options": {
         "HOUR": "godz.",
         "PIECE": "szt."
@@ -109,7 +104,6 @@
       "property": "vatRate",
       "value": [""],
       "required": false,
-      "sortByLabel": false,
       "options": {
         "VAT_00": "0%",
         "VAT_05": "5%",
@@ -139,7 +133,6 @@
         "property": "payment.method",
         "value": "BANK_TRANSFER",
         "required": true,
-        "sortByLabel": true,
         "options": {
           "BANK_TRANSFER": "przelew bankowy",
           "CASH": "gotówka",
@@ -192,8 +185,6 @@
       "property": "payment.bankAccount",
       "value": "",
       "required": false,
-      "typeName": "Bank account",
-      "sortByLabel": false,
       "options": {
         "47c70b5c-3405-4477-8d57-6127373114a0": "Konto AVISPA SOFTWARE"
       }
