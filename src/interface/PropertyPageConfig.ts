@@ -41,7 +41,7 @@ interface Constraints {
 
 interface Constraint {
     contexts?: Array<"INSERT" | "EDIT" | "READONLY">;
-    condition?: string;
+    conditions?: string;
 }
 
 export interface PropertyControlProps extends Control {
@@ -62,10 +62,6 @@ export interface Columns extends Control {
 }
 
 export interface ComboRadio extends PropertyControlProps {
-    typeName?: string;
-    typeNameExpression?: string;
-    dictionary?: string;
-    sortByLabel: boolean;
     options: object;
 }
 

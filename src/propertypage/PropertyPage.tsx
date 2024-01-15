@@ -162,7 +162,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                 }
             }
 
-            if (constraint?.condition && !resolveConditions(constraint.condition)) {
+            if (constraint?.conditions && !resolveConditions(constraint.conditions)) {
                 return;
             }
         }
@@ -276,8 +276,8 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                 }
             }
 
-            if (constraint?.condition) {
-                control.required = resolveConditions(constraint.condition);
+            if (constraint?.conditions) {
+                control.required = resolveConditions(constraint.conditions);
             }
         }
 
