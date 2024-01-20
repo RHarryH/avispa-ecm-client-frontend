@@ -242,11 +242,27 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 responsePromise = axios.post(url, contextWrapper, {headers: { "Content-Type": "application/json" }});
             } else {
                 // update contexts array by removing last context
-                const newModalContext = structuredClone(modalContext.slice(0, -1));
-                setModalContext(newModalContext);
+                const previousPageContext = modalContext.pop();
 
-                // does not send context backwards
-                responsePromise = axios.post(url, {targetPageType: targetPageType});
+                setModalContext(modalContext);
+
+                // restore context of the previous page by providing it to the request
+                if (previousPageContext) {
+                    // when going back target page is the source page, source page is not required because current page
+                    // does not determine the values of previous page
+                    previousPageContext.set("targetPageType", previousPageContext.get("sourcePageType") as string);
+                    previousPageContext.delete("sourcePageType");
+
+                    responsePromise = axios.post(url, previousPageContext, {headers: {"Content-Type": "application/json"}});
+                }
+            }
+
+            // if context for previous page is missing the page won't be loaded
+            // therefore it is required to unlock the page
+            // this should not happen in normal conditions
+            if (!responsePromise) {
+                setIsLoading(false);
+                return;
             }
 
             responsePromise.then(response => {
@@ -268,6 +284,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         }
     }, [modalData, show, pageNumber, modalContext, onError]);
 
+    // update model on change of value in the form control
     function onChange(event: React.FormEvent<HTMLFormElement>) {
         const target = event.target as HTMLFormElement;
 
