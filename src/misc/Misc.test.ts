@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import {getPropertyControl, resource2TypeName} from "./Misc";
+import {getControlsPathOfType, getPropertyControl, resource2TypeName} from "./Misc";
 import testPropertyPage from "./test/property-page.json";
 
 function controlFinderTest(searchedProperty: string, expectedControl: any, expectedPath: string|undefined) {
@@ -167,6 +167,30 @@ test('check whole table', () => {
 
 test('check table property with index out of values range', () => {
     controlFinderTest("positions[1].unitPrice", undefined, undefined);
+});
+
+function controlPathTypeFinderTest(searchedTypes: string[], expectedPaths: any) {
+    const paths = getControlsPathOfType(searchedTypes, testPropertyPage.controls);
+    expect(paths).toEqual(expectedPaths);
+}
+
+test('controlTypeFinderSingleControl', () => {
+    controlPathTypeFinderTest(["combo"],
+        ["$.controls[0].controls[0]",
+            "$.controls[0].controls[1]",
+            "$.controls[3].controls[2]",
+            "$.controls[3].controls[5]",
+            "$.controls[4].controls[0].controls[0]",
+            "$.controls[4].controls[2]"
+        ]);
+});
+
+test('controlTypeFinderMultipleControls', () => {
+    controlPathTypeFinderTest(["text", "money"],
+        ["$.controls[3].controls[0]",
+            "$.controls[3].controls[3]",
+            "$.controls[4].controls[1].controls[0]"
+        ]);
 });
 
 test('resource to type name conversion', () => {

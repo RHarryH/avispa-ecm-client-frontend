@@ -21,10 +21,10 @@ import {Button, Col, Form, ListGroup, ListGroupItem, Modal, OverlayTrigger, Row,
 import axios, {Method} from "axios";
 import {useEventContext} from "../event/EventContext";
 import {EventType} from "../event/EventReducer";
-import {PropertyPageConfig, TableProps} from "../interface/PropertyPageConfig";
+import {ComboRadio, PropertyPageConfig, TableProps} from "../interface/PropertyPageConfig";
 import PropertyPage from "../propertypage/PropertyPage";
 import Container from "react-bootstrap/Container";
-import {getPropertyControl} from "../misc/Misc";
+import {getControlsOfType, getPropertyControl} from "../misc/Misc";
 import ErrorPage from "../misc/ErrorPage";
 import {RestError} from "../widget/Widget";
 import {runCustomValidation} from "../misc/Validation";
@@ -289,7 +289,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
         const target = event.target as HTMLFormElement;
 
         // update property in the property page
-        let propertyPageUpdated:PropertyPageConfig = {...propertyPage};
+        let propertyPageUpdated = structuredClone(propertyPage);
         let foundControl = getPropertyControl(target.name, propertyPageUpdated.controls);
         if(foundControl) {
             if(foundControl.index !== undefined) {
@@ -299,8 +299,49 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
             }
 
             //console.log("Changed property: " + target.name + "=>" + target.value);
-            setPropertyPage(propertyPageUpdated);
         }
+
+        function loadDictionaries() {
+            let promises: Promise<void>[] = [];
+
+            const context = new FormData(event.currentTarget);
+
+            getControlsOfType(['combo', 'radio'], propertyPageUpdated.controls)
+                .map(control => control as ComboRadio)
+                .forEach(comboRadio => {
+                    const contextWrapper = new FormData();
+
+                    if (comboRadio.loadSettings?.qualification) {
+
+                        // wrap form data into modal context
+                        context.forEach((value, key) => contextWrapper.set("object." + key, value));
+                        contextWrapper.set("qualification", comboRadio.loadSettings.qualification);
+
+                        promises.push(axios.post('/dictionary/' + modalData.resource, contextWrapper, {headers: {"Content-Type": "application/json"}})
+                            .then(response => {
+                                comboRadio.options = response.data;
+                            })
+                            .catch(error => {
+                                publishEvent({
+                                    type: "ERROR_EVENT",
+                                    payload: {
+                                        id: undefined,
+                                        notification: {
+                                            type: 'error',
+                                            message: "Can't reload dictionary" + (error.response?.data ? ' Reason: ' + error.response.data.message : '')
+                                        }
+                                    }
+                                });
+                            }));
+                    }
+                });
+            return promises;
+        }
+
+        // wait until all dictionaries will be reloaded before updating the property page value
+        Promise.all(loadDictionaries()).then(() => {
+            setPropertyPage(propertyPageUpdated);
+        });
     }
 
     function onTableRowAdded(propertyName: string) {
