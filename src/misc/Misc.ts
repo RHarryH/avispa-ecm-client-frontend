@@ -47,6 +47,47 @@ function getFilenameFromHeader(response: AxiosResponse) {
     return "download";
 }
 
+export function getControlsOfType(searchedTypes: string[], controls: Control[]): Control[] {
+    let result: Control[] = [];
+    for (const control of controls) {
+        if (searchedTypes.includes(control.type)) {
+            result.push(control);
+        }
+
+        if ('controls' in control && Array.isArray(control.controls)) {
+            result.push(...getControlsOfType(searchedTypes, control.controls));
+        } else if (control.type === 'tabs') {
+            for (const tab of (control as TabsProps).tabs) {
+                result.push(...getControlsOfType(searchedTypes, tab.controls));
+            }
+        }
+    }
+    return result;
+}
+
+export function getControlsPathOfType(searchedTypes: string[], controls: Control[]): string[] {
+    return getControlsPathOfTypeInternal(searchedTypes, controls);
+}
+
+function getControlsPathOfTypeInternal(searchedTypes: string[], controls: Control[], jsonPath: string = '$'): string[] {
+    let results: string[] = [];
+    for (const [index, control] of controls.entries()) {
+        const path = jsonPath + '.controls[' + index + ']';
+        if (searchedTypes.includes(control.type)) {
+            results.push(path);
+        }
+
+        if ('controls' in control && Array.isArray(control.controls)) {
+            results.push(...getControlsPathOfTypeInternal(searchedTypes, control.controls, path));
+        } else if (control.type === 'tabs') {
+            for (const [tabIndex, tab] of (control as TabsProps).tabs.entries()) {
+                results.push(...getControlsPathOfTypeInternal(searchedTypes, tab.controls, path + '.tab[' + tabIndex + ']'));
+            }
+        }
+    }
+    return results;
+}
+
 export interface FoundControl {
     control: PropertyControlProps;
     index?: number; // optional index in case of table content

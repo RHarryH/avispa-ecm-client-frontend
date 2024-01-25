@@ -18,23 +18,21 @@
 
 import {ComboRadio, HTMLProperty} from "../interface/PropertyPageConfig";
 import {FormCheck} from "react-bootstrap";
-import React, {ChangeEventHandler} from "react";
+import React from "react";
 
 interface RadioProps {
     radio: ComboRadio;
     property: HTMLProperty;
-    onChange?: ChangeEventHandler<HTMLInputElement>;
 }
 
-function RadioControl({radio, property, onChange}: RadioProps) {
+function RadioControl({radio, property}: RadioProps) {
     function getRadioOptions(values: Map<string, string>) {
         const array = [];
         let index = 0;
         for (let [key, value] of values) {
             array.push(<FormCheck key={key} type="radio" id={property.id + index++} name={property.name} inline
                                   label={value}
-                                  defaultValue={key} checked={key === currentKey} required={radio.required}
-                                  onChange={onChange}/>);
+                                  defaultValue={key} checked={key === currentKey} required={radio.required}/>);
         }
 
         return <>{array}</>;
