@@ -18,15 +18,13 @@
 
 import {FormSelect} from "react-bootstrap";
 import {ComboRadio, HTMLProperty} from "../interface/PropertyPageConfig";
-import {ChangeEventHandler} from "react";
 
 interface ComboProps {
     combo: ComboRadio;
     property: HTMLProperty;
-    onChange?: ChangeEventHandler<HTMLSelectElement>;
 }
 
-function ComboControl({combo, property, onChange}: ComboProps) {
+function ComboControl({combo, property}: ComboProps) {
     function getComboOptions(values: Map<string, string>) {
         const array = [];
         for (let [key, value] of values) {
@@ -36,18 +34,37 @@ function ComboControl({combo, property, onChange}: ComboProps) {
         return <>{array}</>;
     }
 
+    function getCurrentKey() {
+        if (property.value) {
+            if (typeof property.value === 'string') {
+                if (dictionaryMap.has(property.value)) {
+                    return property.value;
+                }
+            } else if (dictionaryMap.has(property.value.id)) {
+                return property.value.id;
+            }
+        }
+
+        if (dictionaryMap.size > 0) {
+            const [firstKey] = dictionaryMap.keys();
+            return firstKey;
+        }
+
+        return "";
+    }
+
     const dictionaryMap = new Map(Object.entries(combo.options));
-    const currentKey = typeof property.value === 'string' || !property.value ? property.value : property.value.id;
+    const currentKey = getCurrentKey();
     const dictionaryHas = dictionaryMap.has(currentKey);
+
+    const style = currentKey === "" ? {
+        backgroundColor: "#ffb3b3"
+    } : {};
 
     return (
         <FormSelect id={property.id} name={property.name} defaultValue={currentKey} required={combo.required}
-                    onChange={onChange}>
-            {
-                currentKey && !dictionaryHas ?
-                    (<option value="" selected disabled hidden>DEPRECATED</option>) :
-                    null
-            }
+                    style={style}>
+            {!dictionaryHas ? <option value="" hidden>Please select a valid value</option> : null}
             {getComboOptions(dictionaryMap)}
         </FormSelect>
     );

@@ -256,10 +256,10 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                 return;
             }
 
-            if (control.type !== 'radio') {
+            if (control.type === 'radio') {
                 return (
                     <legend
-                        className={"form-label col-form-label pt-0 col-sm-" + (2 * controlsNum)}>{control.label + (control.required ? '*' : '')}</legend>
+                        className={"form-label col-form-label col-sm-" + (2 * controlsNum)}>{control.label + (control.required ? '*' : '')}</legend>
                 );
             }
 
@@ -283,7 +283,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
 
         return <>
             {getLabel(control, controlsNum)}
-            <Col>
+            <Col className={control.type === 'radio' ? 'd-flex align-items-center' : ''}>
                 <PropertyControl control={control}/>
             </Col>
         </>;

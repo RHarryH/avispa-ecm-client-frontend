@@ -62,7 +62,12 @@ export interface Columns extends Control {
 }
 
 export interface ComboRadio extends PropertyControlProps {
+    loadSettings: LoadSettings;
     options: object;
+}
+
+interface LoadSettings {
+    qualification?: string;
 }
 
 export interface Date extends PropertyControlProps {
