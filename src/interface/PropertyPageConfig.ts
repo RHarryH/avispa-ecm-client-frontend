@@ -67,6 +67,7 @@ export interface ComboRadio extends PropertyControlProps {
 }
 
 interface LoadSettings {
+    type: string;
     qualification?: string;
 }
 
