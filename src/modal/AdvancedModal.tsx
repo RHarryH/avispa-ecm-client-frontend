@@ -317,7 +317,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                         context.forEach((value, key) => contextWrapper.set("object." + key, value));
                         contextWrapper.set("qualification", comboRadio.loadSettings.qualification);
 
-                        promises.push(axios.post('/dictionary/' + modalData.resource, contextWrapper, {headers: {"Content-Type": "application/json"}})
+                        promises.push(axios.post('/dictionary/' + comboRadio.loadSettings.type, contextWrapper, {headers: {"Content-Type": "application/json"}})
                             .then(response => {
                                 comboRadio.options = response.data;
                             })
