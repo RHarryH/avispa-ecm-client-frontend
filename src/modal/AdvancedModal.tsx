@@ -442,7 +442,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                                                                 onClick={reset}>Reset</Button>
                                                     </OverlayTrigger>
                                                     <Button variant="danger" disabled={isProcessing}
-                                                            onClick={onClose}>Reject</Button>
+                                                            onClick={close}>Reject</Button>
                                                     {
                                                         pageNumber === modalData.pages.length - 1 ?
                                                             <Button type="submit" disabled={isProcessing}
