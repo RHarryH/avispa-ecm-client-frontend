@@ -31,6 +31,23 @@ interface TableControlComponentProps {
 function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlComponentProps) {
     function getTableControls(table: TableProps, readonly: boolean) {
         let array = [];
+
+        function getRowRemoveButton(i: number, readonly: boolean) {
+            if (!readonly) {
+                if (i !== 0) {
+                    return (
+                        <td>
+                            <Button variant="" className={"bi bi-trash-fill align-middle"}
+                                    onClick={() => onRowRemoved ? onRowRemoved(table.property, i) : null}></Button>
+                        </td>
+                    );
+                } else {
+                    return (<td></td>);
+                }
+            }
+            return null;
+        }
+
         for(let i = 0; i < table.size; i++) {
             array.push(
                 <tr key={i}>
@@ -38,19 +55,13 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlC
                         {i + 1}
                     </th>
                     {
-                        table.controls.map(control=> (
+                        table.controls.map(control => (
                             <td key={control.id}>
                                 <PropertyControl control={control} rootPropertyName={table.property} valueIndex={i}/>
                             </td>
                         ))
                     }
-                    <td>
-                        {
-                            !readonly && i !== 0 ?
-                                <Button variant="" className={"bi bi-trash-fill align-middle"} onClick={() => onRowRemoved ? onRowRemoved(table.property, i) : null}></Button> :
-                                null
-                        }
-                    </td>
+                    {getRowRemoveButton(i, readonly)}
                 </tr>
             );
         }
