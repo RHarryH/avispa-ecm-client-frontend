@@ -31,8 +31,8 @@ function RadioControl({radio, property}: RadioProps) {
         let index = 0;
         for (let [key, value] of values) {
             array.push(<FormCheck key={key} type="radio" id={property.id + index++} name={property.name} inline
-                                  label={value}
-                                  defaultValue={key} checked={key === currentKey} required={radio.required}/>);
+                                  label={value} defaultValue={key} checked={key === currentKey}
+                                  required={radio.required} readOnly={radio.readonly} disabled={radio.readonly}/>);
         }
 
         return <>{array}</>;
