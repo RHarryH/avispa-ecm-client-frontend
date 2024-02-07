@@ -37,6 +37,7 @@ export interface Control {
 interface Constraints {
     visibility?: Constraint;
     requirement?: Constraint;
+    modifiable?: Constraint;
 }
 
 interface Constraint {
@@ -50,6 +51,7 @@ export interface PropertyControlProps extends Control {
     value: any;
     customValidation?: CustomValidation;
     required: boolean;
+    readonly: boolean;
 }
 
 interface CustomValidation {

@@ -66,7 +66,7 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             const tableCentered = rootPropertyName ? "d-flex justify-content-center" : undefined;
             return (
                 <FormCheck type="switch" id={id} name={name} label={label} aria-label={ariaLabel}
-                           className={tableCentered}
+                           className={tableCentered} disabled={control.readonly}
                            required={control.required} defaultValue={value ? value : false}
                            defaultChecked={value === 'true'}
                            onChange={(e) => e.target.value = e.target.checked.toString()}/>
@@ -81,21 +81,23 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
         case 'date':
             const date = control as Date;
             return (
-                <FormControl type="date" min={date.min} max={date.max} step={date.step}
-                             id={id} name={name} defaultValue={value} required={date.required}/>
+                <FormControl type="date" min={date.min} max={date.max} step={date.step} id={id} name={name}
+                             defaultValue={value} required={date.required} readOnly={date.readonly}
+                             disabled={date.readonly}/>
             );
         case 'datetime':
             const datetime = control as Date;
             return (
-                <FormControl type="datetime-local" min={datetime.min} max={datetime.max} step={datetime.step}
-                             id={id} name={name} defaultValue={value} required={datetime.required}/>
+                <FormControl type="datetime-local" min={datetime.min} max={datetime.max} step={datetime.step} id={id}
+                             name={name} defaultValue={value} required={datetime.required} readOnly={datetime.readonly}
+                             disabled={datetime.readonly}/>
             );
         case 'money':
             const money = control as Money;
             return (
                 <InputGroup>
                     <MaskedFormControl type="text" id={id} name={name} defaultValue={value} required={money.required}
-                                       money/>
+                                       readOnly={money.readonly} disabled={money.readonly} money/>
                     <InputGroup.Text>{money.currency}</InputGroup.Text>
                 </InputGroup>
             );
@@ -103,7 +105,8 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             const number = control as Number;
             return (
                 <FormControl type="number" min={number.min} max={number.max} step={number.step}
-                             id={id} name={name} defaultValue={value} required={number.required}/>
+                             id={id} name={name} defaultValue={value} required={number.required}
+                             readOnly={number.readonly} disabled={number.readonly}/>
             );
         case 'radio':
             const radio = control as ComboRadio;
@@ -118,18 +121,19 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
             return (
                 <MaskedFormControl type={text.type} pattern={text.pattern} minLength={text.minLength}
                                    maxLength={text.maxLength} id={id} name={name} defaultValue={value}
-                                   required={text.required}/>
+                                   required={text.required} readOnly={text.readonly} disabled={text.readonly}/>
             );
         case 'textarea':
             const textarea = control as TextArea;
             return (
                 <FormControl as="textarea" rows={textarea.rows} cols={textarea.cols} minLength={textarea.minLength}
                              maxLength={textarea.maxLength} id={id} name={name} defaultValue={value}
-                             required={textarea.required}/>
+                             required={textarea.required} readOnly={textarea.readonly} disabled={textarea.readonly}/>
             );
         case 'hidden':
             return (
-                <FormControl type={control.type} id={id} name={name} defaultValue={value} required={control.required}/>
+                <FormControl type={control.type} id={id} name={name} defaultValue={value} required={control.required}
+                             readOnly={control.readonly}/>
             );
         default:
             return <span>Unknown control of '{control.type}' type</span>;
