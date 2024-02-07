@@ -62,8 +62,8 @@ function ComboControl({combo, property}: ComboProps) {
     } : {};
 
     return (
-        <FormSelect id={property.id} name={property.name} defaultValue={currentKey} required={combo.required}
-                    style={style}>
+        <FormSelect id={property.id} name={property.name} defaultValue={currentKey} style={style}
+                    required={combo.required} disabled={combo.readonly}>
             {!dictionaryHas ? <option value="" hidden>Please select a valid value</option> : null}
             {getComboOptions(dictionaryMap)}
         </FormSelect>

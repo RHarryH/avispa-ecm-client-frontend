@@ -198,7 +198,8 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
             }
             case 'table':
                 const table = control as TableProps;
-                return <TableControl key={table.id} table={table} readonly={propertyPage.context === "READONLY"}
+                return <TableControl key={table.id} table={table}
+                                     readonly={propertyPage.context === "READONLY" || table.readonly}
                                      onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
             case 'tabs': {
                 const tabs = control as TabsProps;
@@ -266,7 +267,26 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
             return getPropertyLabel(control, controlsNum)
         }
 
-        if (control.constraints?.requirement) {
+        // check whether the control should be modifiable or not
+        if (control.constraints?.modifiable) {
+            const constraint = control.constraints.modifiable;
+
+            if (constraint?.contexts) {
+                const contexts = constraint.contexts;
+                if (contexts.length > 0 && !contexts.includes(propertyPage.context)) {
+                    control.readonly = false;
+                }
+            }
+
+            if (constraint?.conditions) {
+                control.readonly = !resolveConditions(constraint.conditions);
+            }
+        }
+
+        // readonly properties are automatically not required
+        if (control.readonly) {
+            control.required = false;
+        } else if (control.constraints?.requirement) { // check whether the control should be required or not
             const constraint = control.constraints.requirement;
 
             if (constraint?.contexts) {
