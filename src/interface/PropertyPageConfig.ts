@@ -106,6 +106,7 @@ export interface Number extends PropertyControlProps {
 
 export interface TableProps extends PropertyControlProps {
     controls: PropertyControlProps[];
+    fixed: boolean;
     size: number;
 }
 
