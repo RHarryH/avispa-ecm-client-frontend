@@ -253,7 +253,7 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
 
     function getPropertyControlWithLabel(control: PropertyControlProps, controlsNum: number) {
         function getLabel(control: PropertyControlProps, controlsNum: number) {
-            if (control.type === 'checkbox') {
+            if (control.type === 'checkbox' || control.type === 'hidden') {
                 return;
             }
 
