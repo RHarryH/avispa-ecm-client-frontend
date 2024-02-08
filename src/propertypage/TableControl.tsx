@@ -33,7 +33,7 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlC
         let array = [];
 
         function getRowRemoveButton(i: number, readonly: boolean) {
-            if (!readonly) {
+            if (!readonly && !table.fixed) {
                 if (i !== 0) {
                     return (
                         <td>
@@ -81,7 +81,7 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlC
                         (<th key={control.id} scope="col">{control.label}</th>)
                     ))
                 }
-                {!readonly ? <th scope="col">Delete</th> : null}
+                {!readonly && !table.fixed ? <th scope="col">Delete</th> : null}
             </tr>
             </thead>
             <tbody>
@@ -89,7 +89,7 @@ function TableControl({table, readonly, onRowAdded, onRowRemoved}: TableControlC
             </tbody>
         </Table>
         {
-            !readonly ?
+            !readonly && !table.fixed ?
                 <Button size="sm" variant="outline-dark" className="bi bi-plus-lg"
                         onClick={() => onRowAdded ? onRowAdded(table.property) : null}>Add new</Button> :
                 null
