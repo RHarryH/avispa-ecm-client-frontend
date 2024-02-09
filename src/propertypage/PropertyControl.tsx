@@ -60,7 +60,7 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
     const value = getControlValue(control, valueIndex);
 
     switch (control.type) {
-        case 'checkbox':
+        case 'checkbox': {
             const label = rootPropertyName ? undefined : (control.label + (control.required ? '*' : ''));
             const ariaLabel = rootPropertyName ? (control.label + " " + (valueIndex + 1)) : undefined;
             const tableCentered = rootPropertyName ? "d-flex justify-content-center" : undefined;
@@ -71,28 +71,32 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
                            defaultChecked={value === 'true'}
                            onChange={(e) => e.target.value = e.target.checked.toString()}/>
             );
-        case 'combo':
+        }
+        case 'combo': {
             const combo = control as ComboRadio;
             return <ComboControl combo={combo} property={{
                 'id': id,
                 'name': name,
                 'value': value
             }}/>
-        case 'date':
+        }
+        case 'date': {
             const date = control as Date;
             return (
                 <FormControl type="date" min={date.min} max={date.max} step={date.step} id={id} name={name}
                              defaultValue={value} required={date.required} readOnly={date.readonly}
                              disabled={date.readonly}/>
             );
-        case 'datetime':
+        }
+        case 'datetime': {
             const datetime = control as Date;
             return (
                 <FormControl type="datetime-local" min={datetime.min} max={datetime.max} step={datetime.step} id={id}
                              name={name} defaultValue={value} required={datetime.required} readOnly={datetime.readonly}
                              disabled={datetime.readonly}/>
             );
-        case 'money':
+        }
+        case 'money': {
             const money = control as Money;
             return (
                 <InputGroup>
@@ -101,35 +105,40 @@ function PropertyControl({control, rootPropertyName = '', valueIndex = -1}: Prop
                     <InputGroup.Text>{money.currency}</InputGroup.Text>
                 </InputGroup>
             );
-        case 'number':
+        }
+        case 'number': {
             const number = control as Number;
             return (
                 <FormControl type="number" min={number.min} max={number.max} step={number.step}
                              id={id} name={name} defaultValue={value} required={number.required}
                              readOnly={number.readonly} disabled={number.readonly}/>
             );
-        case 'radio':
+        }
+        case 'radio': {
             const radio = control as ComboRadio;
             return <RadioControl radio={radio} property={{
                 'id': id,
                 'name': name,
                 'value': value
             }}/>
+        }
         case 'text':
-        case 'email':
+        case 'email': {
             const text = control as Text;
             return (
                 <MaskedFormControl type={text.type} pattern={text.pattern} minLength={text.minLength}
                                    maxLength={text.maxLength} id={id} name={name} defaultValue={value}
                                    required={text.required} readOnly={text.readonly} disabled={text.readonly}/>
             );
-        case 'textarea':
+        }
+        case 'textarea': {
             const textarea = control as TextArea;
             return (
                 <FormControl as="textarea" rows={textarea.rows} cols={textarea.cols} minLength={textarea.minLength}
                              maxLength={textarea.maxLength} id={id} name={name} defaultValue={value}
                              required={textarea.required} readOnly={textarea.readonly} disabled={textarea.readonly}/>
             );
+        }
         case 'hidden':
             return (
                 <FormControl type={control.type} id={id} name={name} defaultValue={value} required={control.required}

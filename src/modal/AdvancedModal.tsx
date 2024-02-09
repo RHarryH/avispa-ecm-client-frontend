@@ -107,7 +107,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
     }, [onClose]);
 
     useEffect(() => {
-        if(show) {
+        if (show && pageNumber === 0) {
             setIsLoading(true);
             axios.get('/modal/' + action)
                 .then(response => {
@@ -217,6 +217,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
             const targetPageType = modalData.pages[newPageNumber].pageType;
 
             let responsePromise;
+            let newModalContext = structuredClone(modalContext);
             if(newPageNumber > pageNumber) {
                 // does not allow to go forward if the form data is invalid
                 if(!formRef.current.checkValidity()) {
@@ -235,16 +236,12 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 contextWrapper.set("targetPageType", targetPageType);
 
                 // update contexts array
-                const newModalContext = structuredClone(modalContext);
                 newModalContext.push(contextWrapper);
-                setModalContext(newModalContext);
 
                 responsePromise = axios.post(url, contextWrapper, {headers: { "Content-Type": "application/json" }});
             } else {
                 // update contexts array by removing last context
-                const previousPageContext = modalContext.pop();
-
-                setModalContext(modalContext);
+                const previousPageContext = newModalContext.pop();
 
                 // restore context of the previous page by providing it to the request
                 if (previousPageContext) {
@@ -269,8 +266,8 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 const propertyPage = response.data;
 
                 setPropertyPage(propertyPage);
+                setModalContext(newModalContext);
                 setInitPropertyPage(structuredClone(propertyPage));
-                setPageNumber(newPageNumber);
             }).catch(error => {
                 if (error) {
                     onError(error);
@@ -279,6 +276,7 @@ function AdvancedModal({show, action, onClose}: AdvancedModalProps) {
                 }
             })
             .finally(() => {
+                setPageNumber(newPageNumber);
                 setIsLoading(false);
             });
         }
