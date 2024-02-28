@@ -218,7 +218,9 @@ function ListWidget({configuration, onError}: ListWidgetProps) {
         <Paginator pagesNum={listWidgetData.pagesNum} currentPage={currentPage}
                    onClick={(pageNumber) => setCurrentPage(pageNumber)}/>
         <AdvancedModal show={editModalProps.show} action={"update/" + listWidgetData.resource + "/" + editModalProps.rowId} onClose={handleEditModalClose}/>
-        <ConfirmationModal show={deleteModalProps.show} title="Deletion" message={'Do you really want to delete this ' + listWidgetData.resource} onClose={handleDeleteModalClose} action={{
+        <ConfirmationModal show={deleteModalProps.show} title="Deletion"
+                           message={'Do you really want to delete this ' + resource2TypeName(listWidgetData.resource)}
+                           onClose={handleDeleteModalClose} action={{
             id: deleteModalProps.rowId ?? '',
             method: "delete",
             endpoint: listWidgetData.resource + "/" + deleteModalProps.rowId,
