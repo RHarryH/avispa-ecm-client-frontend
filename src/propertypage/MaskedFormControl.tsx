@@ -19,6 +19,7 @@
 import React, {useEffect, useMemo, useRef} from "react";
 import {FormControl, FormControlProps} from "react-bootstrap";
 import {BsPrefixProps, ReplaceProps} from "react-bootstrap/helpers";
+import Inputmask from "inputmask";
 
 //handy type definition to wrap up the replace+bsprefix bits of bootstrap
 type BootstrapComponentProps<As extends React.ElementType, P> = ReplaceProps<As, BsPrefixProps<As> & P>
@@ -36,7 +37,6 @@ type MaskedFormControlProperties<As extends React.ElementType = 'input'> =
 export default function MaskedFormControl(props: MaskedFormControlProperties) {
     const ref = useRef<HTMLElement>(null);
 
-    // /*"greedy": true*/
     const currencyAlias = useMemo(() => {
         return {
             alias: "numeric",
@@ -52,7 +52,15 @@ export default function MaskedFormControl(props: MaskedFormControlProperties) {
             allowPlus: false,
             allowMinus: false,
             removeMaskOnSubmit: true,
-            greedy: true
+            unmaskAsNumber: true,
+            greedy: false,
+            // see https://github.com/RobinHerbots/Inputmask/issues/1467
+            onBeforeMask: function (value: string) {
+                if (value.indexOf(".") == -1) {
+                    return value + ".00";
+                }
+                return value.replace(".", ",");
+            }
         }
     }, []);
 

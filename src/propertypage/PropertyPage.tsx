@@ -98,9 +98,6 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                                 return "";
                             }
                         }
-                    } else if(element.type === 'money') {
-                        const radixPoint = ","; // TODO: Inputmask().mask(testRef.current).option('radixPoint');
-                        return element?.value.replace(radixPoint, ".");
                     }
                 }
 
@@ -168,9 +165,10 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
         }
 
         switch (control.type) {
-            case 'label':
+            case 'label': {
                 const label = control as Label;
                 return (<h3 key={label.id} className="col-sm-12">{label.expression}</h3>);
+            }
             case 'separator':
                 return (<hr key={control.id}/>);
             case 'columns': {
@@ -196,11 +194,12 @@ function PropertyPage({propertyPage, onTableRowAdded, onTableRowRemoved}: Proper
                     </fieldset>
                 );
             }
-            case 'table':
+            case 'table': {
                 const table = control as TableProps;
                 return <TableControl key={table.id} table={table}
                                      readonly={propertyPage.context === "READONLY" || table.readonly}
                                      onRowAdded={onTableRowAdded} onRowRemoved={onTableRowRemoved}/>;
+            }
             case 'tabs': {
                 const tabs = control as TabsProps;
                 const margin = notLast ? 'mb-3' : '';
