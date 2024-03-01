@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import Inputmask from "inputmask";
 import {PropertyControlProps} from "../interface/PropertyPageConfig";
 
 export function runCustomValidation(control: PropertyControlProps, element: HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement) {
@@ -26,11 +25,6 @@ export function runCustomValidation(control: PropertyControlProps, element: HTML
         const customValidation = control.customValidation?.function;
         if (customValidation) {
             let value = element.value;
-            if (control.type === 'money') {
-                const radixPoint = Inputmask().mask(element).option('radixPoint');
-                value = value.replace(radixPoint, ".");
-            }
-
             try {
                 if (!executeFunctionByName(customValidation, window, [value])) {
                     setValidationMessage(control, element);
