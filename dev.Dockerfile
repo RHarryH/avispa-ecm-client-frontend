@@ -1,6 +1,6 @@
 FROM node:20.10.0-alpine
 
-MAINTAINER rafalhiszpanski.pl
+LABEL org.opencontainers.image.authors="rafalhiszpanski.pl"
 
 ARG ECM_CLIENT_FRONTEND_DIR="/opt/avispa-ecm-client-frontend"
 

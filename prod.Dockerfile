@@ -1,5 +1,7 @@
 FROM node:20.10.0-alpine AS builder
 
+LABEL org.opencontainers.image.authors="rafalhiszpanski.pl"
+
 ARG ECM_CLIENT_FRONTEND_DIR="/avispa-ecm-client-frontend"
 WORKDIR ${ECM_CLIENT_FRONTEND_DIR}
 
